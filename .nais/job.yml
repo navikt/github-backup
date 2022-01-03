@@ -1,0 +1,10 @@
+apiVersion: nais.io/v1
+kind: Naisjob
+metadata:
+  labels:
+    team: aura
+  name: github-backup
+  namespace: aura
+spec:
+  image: {{ image }}
+  schedule: "0 3 * * *"
