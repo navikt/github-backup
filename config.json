@@ -1,0 +1,10 @@
+{
+  "orgs": [
+    {
+      "name": "nais",
+      "exclude": [
+        "nais-ppa"
+      ]
+    }
+  ]
+}
