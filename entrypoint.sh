@@ -9,4 +9,8 @@ fi
 git config --global credential.helper store
 echo "https://github-backup:${GITHUB_TOKEN}@github.com" > ~/.git-credentials
 
-python /app/backup.py --https -c /app/config.json -b /tmp/backups/github.com --concurrent 50
+python /home/backup/backup.py \
+       --https \
+       --concurrent 50 \
+       -c /home/backup/config.json \
+       -b /tmp/backups/github.com
