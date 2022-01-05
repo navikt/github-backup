@@ -1,17 +1,18 @@
-name: Build image
+name: CI
 on: push
 env:
   IMAGE: ghcr.io/${{ github.repository }}:${{ github.sha }}
 jobs:
   build:
-    name: Build image
+    name: Build and publish image
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
-      - name: Build and publish Docker image
+      - name: Build image
+        run: docker build --tag ${IMAGE} .
+      - name: Publish image
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          docker build --tag ${IMAGE} .
           docker login ghcr.io -u ${GITHUB_REPOSITORY} -p ${GITHUB_TOKEN}
           docker push ${IMAGE}
