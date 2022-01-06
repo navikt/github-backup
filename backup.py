@@ -73,7 +73,7 @@ def create_backup_dirs(parent_dir, orgs):
         makedirs(name=f'{parent_dir}/{org}', exist_ok=True)
 
 
-def backup(github_token, backup_dir, use_https, orgs, concurrent_processes=50):
+def backup(github_token, backup_dir, orgs, concurrent_processes=50):
     """Perform backup of repositories in one or more organizations on GitHub
 
     The backup is a simple git clone if the repository have never been backed up before, git pull otherwise
@@ -100,8 +100,7 @@ def backup(github_token, backup_dir, use_https, orgs, concurrent_processes=50):
             if path_exists(repo_dir):
                 command = ['git', '-C', repo_dir, 'pull', '-f']
             else:
-                clone_url = repo['clone_url'] if use_https else repo['ssh_url']
-                command = ['git', 'clone', clone_url, repo_dir]
+                command = ['git', 'clone', repo['ssh_url'], repo_dir]
 
             process = start_process(args=command, stdout=PIPE, stderr=PIPE)
             processes.append((process, repo_name_with_owner))
@@ -117,11 +116,9 @@ def backup(github_token, backup_dir, use_https, orgs, concurrent_processes=50):
 def main():
     parser = ArgumentParser(
         description='Perform a backup of repositories in GitHub organizations')
-    parser.add_argument('--https', action='store_true',
-                        help='use HTTPS when cloning instead of SSH')
-    parser.add_argument('-c', '--config-file', required=True, metavar='path', type=str,
+    parser.add_argument('--config-file', required=True, metavar='path', type=str,
                         help='path to configuration file')
-    parser.add_argument('-b', '--backup-dir', metavar='path', type=str,
+    parser.add_argument('--backup-dir', metavar='path', type=str,
                         help='path to backup directory, defaults to /tmp/backups/github.com', default='/tmp/backups/github.com')
     parser.add_argument('--concurrent', metavar='num', type=int,
                         help='number of concurrent clones / pulls from GitHub, deffaults to 50', default=50)
@@ -130,8 +127,6 @@ def main():
     if not 'GITHUB_TOKEN' in environ:
         print('Missing required environment variable GITHUB_TOKEN')
         return EXIT_FAILURE
-
-    github_token = environ.get('GITHUB_TOKEN')
 
     config_file_path = args.config_file
 
@@ -150,7 +145,7 @@ def main():
         parser.print_usage()
         return EXIT_FAILURE
 
-    return backup(github_token=github_token, backup_dir=args.backup_dir, use_https=args.https,
+    return backup(github_token=environ.get('GITHUB_TOKEN'), backup_dir=args.backup_dir,
                   orgs=config['orgs'], concurrent_processes=args.concurrent)
 
 
