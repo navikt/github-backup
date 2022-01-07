@@ -26,6 +26,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: nais/deploy/actions/deploy@v1
+        with:
+          team: aura
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_KEY }}
           CLUSTER: prod-sbs
