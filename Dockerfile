@@ -1,7 +1,8 @@
 FROM python:3.10.1-alpine3.14
 RUN apk add --no-cache \
     git \
-    openssh
+    openssh \
+    jq
 RUN pip install --upgrade pip
 
 RUN adduser -D backup

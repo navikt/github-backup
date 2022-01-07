@@ -121,7 +121,7 @@ def main():
     parser.add_argument('--backup-dir', metavar='path', type=str,
                         help='path to backup directory, defaults to /tmp/backups/github.com', default='/tmp/backups/github.com')
     parser.add_argument('--concurrent', metavar='num', type=int,
-                        help='number of concurrent clones / pulls from GitHub, deffaults to 50', default=50)
+                        help='number of concurrent clones / pulls from GitHub, defaults to 50', default=50)
     args = parser.parse_args()
 
     if not 'GITHUB_TOKEN' in environ:
