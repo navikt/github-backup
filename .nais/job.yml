@@ -1,6 +1,8 @@
 apiVersion: v1
 kind: Secret
 metadata:
+  labels:
+    team: aura
   name: github-backup
   namespace: aura
 data:
