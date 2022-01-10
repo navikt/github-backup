@@ -36,4 +36,5 @@ jobs:
             SSH_PUBLIC_KEY=${{ secrets.SSH_PUBLIC_KEY }},\
             SSH_PRIVATE_KEY=${{ secrets.SSH_PRIVATE_KEY }},\
             REMOTE_USER=${{ secrets.REMOTE_USER }},\
-            REMOTE_HOST=${{ secrets.REOMOTE_HOST }}"
+            REMOTE_HOST=${{ secrets.REMOTE_HOST }},\
+            REMOTE_PATH=${{ secrets.REMOTE_PATH }}"
