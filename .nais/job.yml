@@ -7,6 +7,7 @@ metadata:
   namespace: aura
 data:
   GITHUB_TOKEN: "{{ GITHUB_TOKEN }}"
+  SSH_PUBLIC_KEY: "{{ SSH_PUBLIC_KEY }}"
   SSH_PRIVATE_KEY: "{{ SSH_PRIVATE_KEY }}"
   REMOTE_HOST: "{{ REMOTE_HOST }}"
   REMOTE_USER: "{{ REMOTE_USER }}"
@@ -25,6 +26,3 @@ spec:
   backoffLimit: 3
 envFrom:
   - secret: github-backup
-env:
-  - name: SSH_PUBLIC_KEY
-    value: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINNlSvjCDADJQzfHv1otEH9Q2hDbQHJZcsGlUC7+KqJX srvGitHubNavikt@nav.no"
