@@ -22,6 +22,7 @@ metadata:
 spec:
   image: {{ image }}
   schedule: "0 3 * * *"
+  backoffLimit: 3
 envFrom:
   - secret: github-backup
 env:
