@@ -17,8 +17,8 @@ jobs:
           echo ${GITHUB_TOKEN} | docker login ghcr.io --username ${GITHUB_REPOSITORY} --password-stdin
           docker push ${IMAGE}
 
-  deploy-prod-sbs:
-    name: Deploy to prod-sbs
+  deploy-prod-gcp:
+    name: Deploy to prod-gcp
     if: ${{ github.ref == 'refs/heads/main' }}
     needs:
       - build
@@ -28,7 +28,7 @@ jobs:
       - uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_KEY }}
-          CLUSTER: prod-sbs
+          CLUSTER: prod-gcp
           RESOURCE: .nais/job.yml
           VAR: "\
             image=${{ env.IMAGE }},\
