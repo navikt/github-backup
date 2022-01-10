@@ -9,6 +9,8 @@ data:
   GITHUB_TOKEN: "{{ GITHUB_TOKEN }}"
   SSH_PUBLIC_KEY: "{{ SSH_PUBLIC_KEY }}"
   SSH_PRIVATE_KEY: "{{ SSH_PRIVATE_KEY }}"
+  REMOTE_HOST: "{{ REMOTE_HOST }}"
+  REMOTE_USER: "{{ REMOTE_USER }}"
 ---
 apiVersion: nais.io/v1
 kind: Naisjob
@@ -22,3 +24,6 @@ spec:
   schedule: "0 3 * * *"
 envFrom:
   - secret: github-backup
+env:
+  - name: REMOTE_PATH
+    value: /pgbackup/gitnav/
