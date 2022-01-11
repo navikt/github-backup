@@ -13,19 +13,6 @@ data:
   REMOTE_USER: "{{ REMOTE_USER }}"
   REMOTE_PATH: "{{ REMOTE_PATH }}"
 ---
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: github-backup
-  namespace: aura
-spec:
-  accessModes:
-  - ReadWriteOnce
-  resources:
-    requests:
-      storage: 100Gi
-  storageClassName: standard
----
 apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
