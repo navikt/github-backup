@@ -5,7 +5,7 @@ RUN apk add --no-cache \
     jq
 RUN pip install --upgrade pip
 
-RUN adduser -D backup
+RUN adduser -D backup -u 1069 -h /home/backup
 USER backup
 WORKDIR /home/backup
 
