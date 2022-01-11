@@ -34,18 +34,23 @@ if [[ -z "${REMOTE_PATH}" ]]; then
 fi
 
 BACKUP_DIR=/data/backups/github.com
+TMP_HOME=/tmp/home/backup
 
 echo "remove local copies"
+
 rm -f $BACKUP_DIR/*.tar.gz
 
 echo "prepare keys"
 
-echo "${SSH_PRIVATE_KEY}" > ~/.ssh/id
-echo "${SSH_PUBLIC_KEY}" > ~/.ssh/id.pub
-chmod 600 ~/.ssh/id ~/.ssh/id.pub
-echo "IdentityFile ~/.ssh/id" > ~/.ssh/config
-ssh-keyscan github.com > ~/.ssh/known_hosts 2>&1
-ssh-keyscan "$REMOTE_HOST" >> ~/.ssh/known_hosts 2>&1
+mkdir -p $TMP_HOME/.ssh
+chmod 0700 $TMP_HOME/.ssh
+
+echo "$SSH_PRIVATE_KEY" > $TMP_HOME/.ssh/id
+echo "$SSH_PUBLIC_KEY" > $TMP_HOME/.ssh/id.pub
+chmod 600 $TMP_HOME/.ssh/id $TMP_HOME/.ssh/id.pub
+
+ssh-keyscan github.com > $TMP_HOME/.ssh/known_hosts
+ssh-keyscan "$REMOTE_HOST" >> $TMP_HOME/.ssh/known_hosts
 
 echo "start backup script"
 
@@ -68,4 +73,4 @@ done
 echo "syncing files"
 rsync ./*.tar.gz "$REMOTE_USER@$REMOTE_HOST:$REMOTE_PATH"
 
-echo "done"
+echo "sync done"
