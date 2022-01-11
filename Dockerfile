@@ -18,4 +18,4 @@ RUN pip install --user -r requirements.txt
 
 COPY --chown=backup:backup backup.py config.json entrypoint.sh ./
 
-ENTRYPOINT [ "./entrypoint.sh" ]
+ENTRYPOINT [ "/tmp/backup/entrypoint.sh" ]
