@@ -33,7 +33,7 @@ if [[ -z "${REMOTE_PATH}" ]]; then
   exit 1
 fi
 
-BACKUP_DIR=/tmp/backups/github.com
+BACKUP_DIR=/data/backups/github.com
 
 echo "remove local copies"
 rm -f $BACKUP_DIR/*.tar.gz
