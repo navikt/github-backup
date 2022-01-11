@@ -50,7 +50,7 @@ echo "$SSH_PUBLIC_KEY" > $TMP_HOME/.ssh/id.pub
 chmod 600 $TMP_HOME/.ssh/id $TMP_HOME/.ssh/id.pub
 
 ssh-keyscan github.com > $TMP_HOME/.ssh/known_hosts
-ssh-keyscan "$REMOTE_HOST" >> $TMP_HOME/.ssh/known_hosts
+# ssh-keyscan "$REMOTE_HOST" >> $TMP_HOME/.ssh/known_hosts
 
 echo "start backup script"
 
@@ -69,6 +69,8 @@ do
   echo "compressing $ORG"
   tar cfz "$ORG-$TIMESTAMP".tar.gz "$ORG"
 done
+
+exit 0
 
 echo "syncing files"
 rsync ./*.tar.gz "$REMOTE_USER@$REMOTE_HOST:$REMOTE_PATH"
