@@ -103,6 +103,13 @@ spec:
           - name: github-backup
             persistentVolumeClaim:
               claimName: github-backup
+          initContainers:
+          - name: volume-mount-fix
+            image: busybox
+            command: ["sh", "-c", "chown 1069:1069 /data"]
+            volumeMounts:
+            - name: github-backup
+              mountPath: /data
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -160,3 +167,12 @@ spec:
   policyTypes:
   - Ingress
   - Egress
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: github-backup
+  labels:
+    app: github-backup
+    team: aura
+spec:
