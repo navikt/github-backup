@@ -49,9 +49,9 @@ ssh-keyscan "$REMOTE_HOST" >> ~/.ssh/known_hosts 2>&1
 
 echo "start backup script"
 
-python /home/backup/backup.py \
+python ~/backup.py \
        --concurrent 50 \
-       --config-file /home/backup/config.json \
+       --config-file ~/config.json \
        --backup-dir $BACKUP_DIR
 
 echo "backup done"
@@ -59,7 +59,7 @@ echo "backup done"
 cd $BACKUP_DIR
 TIMESTAMP=$(date +"%Y-%m-%d")
 
-for ORG in $(jq --raw-output '.orgs[].name' < /home/backup/config.json)
+for ORG in $(jq --raw-output '.orgs[].name' < ~/config.json)
 do
   echo "compressing $ORG"
   tar cfz "$ORG-$TIMESTAMP".tar.gz "$ORG"
