@@ -167,12 +167,3 @@ spec:
   policyTypes:
   - Ingress
   - Egress
----
-apiVersion: v1
-kind: Pod
-metadata:
-  name: github-backup
-  labels:
-    app: github-backup
-    team: aura
-spec:
