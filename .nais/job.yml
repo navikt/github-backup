@@ -13,6 +13,12 @@ data:
   REMOTE_USER: "{{ REMOTE_USER }}"
   REMOTE_PATH: "{{ REMOTE_PATH }}"
 ---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: github-backup
+  namespace: aura
+---
 apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
