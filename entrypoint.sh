@@ -45,7 +45,7 @@ echo "${SSH_PUBLIC_KEY}" > ~/.ssh/id.pub
 chmod 600 ~/.ssh/id ~/.ssh/id.pub
 echo "IdentityFile ~/.ssh/id" > ~/.ssh/config
 ssh-keyscan github.com > ~/.ssh/known_hosts 2>&1
-ssh-keyscan $REMOTE_HOST >> ~/.ssh/known_hosts 2>&1
+ssh-keyscan "$REMOTE_HOST" >> ~/.ssh/known_hosts 2>&1
 
 echo "start backup script"
 
@@ -59,13 +59,13 @@ echo "backup done"
 cd $BACKUP_DIR
 TIMESTAMP=$(date +"%Y-%m-%d")
 
-for ORG in $(cat /home/backup/config.json | jq --raw-output '.orgs[].name')
+for ORG in $(jq --raw-output '.orgs[].name' < /home/backup/config.json)
 do
   echo "compressing $ORG"
-  tar cfz $ORG-$TIMESTAMP.tar.gz $ORG
+  tar cfz "$ORG-$TIMESTAMP".tar.gz "$ORG"
 done
 
 echo "syncing files"
-rsync *.tar.gz $REMOTE_USER@$REMOTE_HOST:$REMOTE_PATH
+rsync ./*.tar.gz "$REMOTE_USER@$REMOTE_HOST:$REMOTE_PATH"
 
 echo "done"
