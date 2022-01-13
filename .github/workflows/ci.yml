@@ -16,25 +16,3 @@ jobs:
         run: |
           echo ${GITHUB_TOKEN} | docker login ghcr.io --username ${GITHUB_REPOSITORY} --password-stdin
           docker push ${IMAGE}
-
-  deploy-prod-gcp:
-    name: Deploy to prod-gcp
-    if: ${{ github.ref == 'refs/heads/main' }}
-    needs:
-      - build
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v2
-      - uses: nais/deploy/actions/deploy@v1
-        env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_KEY }}
-          CLUSTER: prod-gcp
-          RESOURCE: .nais/job.yml
-          VAR: "\
-            image=${{ env.IMAGE }},\
-            GITHUB_TOKEN=${{ secrets.PAT }},\
-            SSH_PUBLIC_KEY=${{ secrets.SSH_PUBLIC_KEY }},\
-            SSH_PRIVATE_KEY=${{ secrets.SSH_PRIVATE_KEY }},\
-            REMOTE_USER=${{ secrets.REMOTE_USER }},\
-            REMOTE_HOST=${{ secrets.REMOTE_HOST }},\
-            REMOTE_PATH=${{ secrets.REMOTE_PATH }}"
