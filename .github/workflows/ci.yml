@@ -1,7 +1,7 @@
 name: CI
 on: push
 env:
-  IMAGE: ghcr.io/${{ github.repository }}:${{ github.sha }}
+  IMAGE: ghcr.io/${{ github.repository }}
 jobs:
   build:
     name: Build and publish image
@@ -9,10 +9,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Build image
-        run: docker build --tag ${IMAGE} .
+        run: docker build --tag ${IMAGE}:${{ github.sha }} --tag ${IMAGE}:latest .
       - name: Publish image
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo ${GITHUB_TOKEN} | docker login ghcr.io --username ${GITHUB_REPOSITORY} --password-stdin
-          docker push ${IMAGE}
+          docker push ${IMAGE} --all-tags

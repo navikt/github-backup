@@ -100,7 +100,7 @@ def backup(github_token, backup_dir, orgs, concurrent_processes=50):
             if path_exists(repo_dir):
                 command = ['git', '-C', repo_dir, 'pull', '-f']
             else:
-                command = ['git', 'clone', repo['ssh_url'], repo_dir]
+                command = ['git', 'clone', repo['clone_url'], repo_dir]
 
             process = start_process(args=command, stdout=PIPE, stderr=PIPE)
             processes.append((process, repo_name_with_owner))
