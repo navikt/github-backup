@@ -3,7 +3,8 @@ RUN apk add --no-cache \
     git \
     openssh \
     jq \
-    bash
+    bash \
+    rsync
 RUN pip install --upgrade pip
 
 RUN echo "Host *" > /etc/ssh/ssh_config
