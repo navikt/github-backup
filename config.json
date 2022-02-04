@@ -5,6 +5,10 @@
       "exclude": [
         "nais-ppa"
       ]
+    },
+    {
+      "name": "navikt",
+      "exclude": []
     }
   ]
 }
