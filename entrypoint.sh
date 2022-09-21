@@ -41,15 +41,18 @@ do
 done
 
 echo "compression done"
-echo "prepare SSH keys"
 
-mkdir -p "$HOME/.ssh"
-chmod 0700 "$HOME/.ssh"
+# Temporarily disable rsync
 
-echo "$SSH_PRIVATE_KEY" > "$HOME/.ssh/id"
-echo "$SSH_PUBLIC_KEY" > "$HOME/.ssh/id.pub"
-chmod 600 "$HOME/.ssh/id" "$HOME/.ssh/id.pub"
+# echo "prepare SSH keys"
 
-echo "syncing files"
-rsync ./*.tar.gz "$REMOTE_USER@$REMOTE_HOST:$REMOTE_PATH"
-echo "sync done"
+# mkdir -p "$HOME/.ssh"
+# chmod 0700 "$HOME/.ssh"
+
+# echo "$SSH_PRIVATE_KEY" > "$HOME/.ssh/id"
+# echo "$SSH_PUBLIC_KEY" > "$HOME/.ssh/id.pub"
+# chmod 600 "$HOME/.ssh/id" "$HOME/.ssh/id.pub"
+
+# echo "syncing files"
+# rsync ./*.tar.gz "$REMOTE_USER@$REMOTE_HOST:$REMOTE_PATH"
+# echo "sync done"
