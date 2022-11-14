@@ -1,24 +1,12 @@
-FROM python:3.10.1-alpine3.14
-RUN apk add --no-cache \
-    git \
-    openssh \
-    jq \
-    bash \
-    rsync
-RUN pip install --upgrade pip
+FROM golang:1.18 as build
 
-RUN echo "Host *" > /etc/ssh/ssh_config
-RUN echo "  IdentityFile /home/backup/.ssh/id" >> /etc/ssh/ssh_config
-RUN echo "  StrictHostKeyChecking no" >> /etc/ssh/ssh_config
+WORKDIR /go/github-backup
+COPY . .
 
-RUN adduser -D backup -u 1069
-WORKDIR /home/backup
-USER backup
+RUN go mod download
+RUN CGO_ENABLED=0 make
+RUN CGO_ENABLED=0 make test
 
-ENV PATH="/home/backup/.local/bin:${PATH}"
-COPY --chown=backup:backup requirements.txt requirements.txt
-RUN pip install --user -r requirements.txt
-
-COPY --chown=backup:backup backup.py config.json entrypoint.sh ./
-
-ENTRYPOINT [ "/home/backup/entrypoint.sh" ]
+FROM gcr.io/distroless/static-debian11
+COPY --from=build /go/github-backup/bin /
+CMD ["/github-backup"]

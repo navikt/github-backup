@@ -1,0 +1,13 @@
+apiVersion: nais.io/v1
+kind: Naisjob
+metadata:
+  labels:
+    team: nais
+  name:  github-backup
+  namespace: security-champion-admin
+spec:
+  image: {{ image }}
+  schedule: {{ schedule }}
+  ttlSecondsAfterFinished: 300
+  envFrom:
+    - secret: github-backup-config

@@ -1,18 +1,37 @@
-name: CI
-on: push
-env:
-  IMAGE: ghcr.io/${{ github.repository }}
+name: Build and deploy main
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - "*.md"
+  workflow_dispatch:
 jobs:
   build:
-    name: Build and publish image
+    name: Build all the things
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
-      - name: Build image
-        run: docker build --tag ${IMAGE}:${{ github.sha }} --tag ${IMAGE}:latest .
-      - name: Publish image
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo ${GITHUB_TOKEN} | docker login ghcr.io --username ${GITHUB_REPOSITORY} --password-stdin
-          docker push ${IMAGE} --all-tags
+      - uses: actions/checkout@7884fcad6b5d53d10323aee724dc68d8b9096a2e # ratchet:actions/checkout@v2
+      - name: Install cosign
+        uses: sigstore/cosign-installer@7e0881f8fe90b25e305bbf0309761e9314607e25 # ratchet:sigstore/cosign-installer@main
+        with:
+          cosign-release: 'v1.13.1'
+      - name: Verify distroless base image
+        run: cosign verify --key distroless.pub gcr.io/distroless/static-debian11
+      - name: Generate Docker image tag with short sha
+        id: dockertag
+        run: echo "::set-output name=docker_img::ghcr.io/${{ github.repository }}:$(git rev-parse --short HEAD)"
+      - name: Login to GitHub Docker Registry
+        uses: docker/login-action@dd4fa0671be5250ee6f50aedf4cb05514abda2c7 # ratchet:docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push the Docker image
+        uses: docker/build-push-action@ac9327eae2b366085ac7f6a2d02df8aa8ead720a # ratchet:docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.dockertag.outputs.docker_img }}
+          cache-from: type=registry,ref=${{ steps.dockertag.outputs.docker_img }}
+          cache-to: type=inline
