@@ -20,7 +20,7 @@ jobs:
         run: cosign verify --key distroless.pub gcr.io/distroless/static-debian11
       - name: Generate Docker image tag with short sha
         id: dockertag
-        run: echo "::set-output name=docker_img::ghcr.io/${{ github.repository }}:$(git rev-parse --short HEAD)"
+        run: echo "docker_img=ghcr.io/${{ github.repository }}:$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
       - name: Login to GitHub Docker Registry
         uses: docker/login-action@dd4fa0671be5250ee6f50aedf4cb05514abda2c7 # ratchet:docker/login-action@v1
         with:
