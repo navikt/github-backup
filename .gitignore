@@ -1,2 +1,15 @@
 .vscode
 .env
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+go.work
+.idea/
+cmake-build-*/
+*.iws
+out/
+
