@@ -5,6 +5,7 @@ go 1.18
 require (
 	github.com/go-git/go-git/v5 v5.4.2
 	github.com/stretchr/testify v1.7.0
+	github.com/tomnomnom/linkheader v0.0.0-20160328204959-6953a30d4443
 )
 
 require (
