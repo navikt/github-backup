@@ -4,7 +4,7 @@ metadata:
   labels:
     team: nais
   name:  github-backup
-  namespace: security-champion-admin
+  namespace: nais
 spec:
   image: {{ image }}
   schedule: {{ schedule }}

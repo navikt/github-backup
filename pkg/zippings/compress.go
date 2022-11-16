@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-func CompressIt(src, compressedFilename string) error {
+func CompressIt(src, compressedFilename string, denyList []string) error {
 	tarGzFile, err := os.OpenFile(compressedFilename, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0600)
 	defer tarGzFile.Close()
 	if err != nil {
@@ -27,8 +27,7 @@ func CompressIt(src, compressedFilename string) error {
 		if !fileInfo.Mode().IsRegular() {
 			return nil
 		}
-		// do not re-compress our own file
-		if strings.HasSuffix(compressedFilename, fileInfo.Name()) {
+		if shouldBeSkipped(compressedFilename, file, denyList) {
 			return nil
 		}
 		header, err := tar.FileInfoHeader(fileInfo, fileInfo.Name())
@@ -52,4 +51,17 @@ func CompressIt(src, compressedFilename string) error {
 
 		return nil
 	})
+}
+
+func shouldBeSkipped(compressedFilename, filenameToTest string, denylist []string) bool {
+	// do not re-compress our own file
+	if strings.HasSuffix(compressedFilename, filenameToTest) {
+		return true
+	}
+	for _, path := range denylist {
+		if strings.Contains(filenameToTest, path) {
+			return true
+		}
+	}
+	return false
 }

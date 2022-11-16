@@ -10,7 +10,7 @@ import (
 )
 
 type Repo struct {
-	Name string
+	FullName string `json:"full_name"`
 }
 
 var client = http.Client{}
@@ -21,6 +21,9 @@ func ReposFor(org, authToken string) ([]Repo, error) {
 	for urlRaw != "" {
 		var reposPart []Repo
 		res, err := getRequest(urlRaw, authToken)
+		if res.StatusCode != 200 {
+			return nil, fmt.Errorf("got a %d from GitHub", res.StatusCode)
+		}
 		if err != nil {
 			return nil, err
 		}

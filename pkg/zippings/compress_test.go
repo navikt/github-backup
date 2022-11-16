@@ -17,12 +17,22 @@ var tarGzPath = filepath.Join(basePath, compressedFileName)
 
 func TestCompressedFileExcludesItself(t *testing.T) {
 	withTestdata(func() {
-		err := CompressIt(basePath, tarGzPath)
+		err := CompressIt(basePath, tarGzPath, []string{})
 		assert.NoError(t, err)
 		fileStats, err := os.Stat(tarGzPath)
 		assert.NoError(t, err)
 		assert.True(t, fileStats.Size() > 0)
-		assert.False(t, compressedFileContainsItself())
+		assert.False(t, compressedFileContains(compressedFileName))
+	})
+}
+
+func TestDenylistedFilesAreExcluded(t *testing.T) {
+	withTestdata(func() {
+		err := CompressIt(basePath, tarGzPath, []string{".git/"})
+		assert.NoError(t, err)
+		assert.True(t, compressedFileContains("file1"))
+		assert.True(t, compressedFileContains("file2"))
+		assert.False(t, compressedFileContains(".git/whatever"))
 	})
 }
 
@@ -33,9 +43,9 @@ func withTestdata(f func()) {
 }
 
 func createTestdata() {
-	os.MkdirAll(basePath, 0744)
-	filenames := []string{"file1", "file2"}
-	fileContents := []byte("hello\ngo\n")
+	os.MkdirAll(filepath.Join(basePath, ".git"), 0744)
+	filenames := []string{"file1", "file2", ".git/whatever"}
+	fileContents := []byte("hello")
 	for _, f := range filenames {
 		os.WriteFile(filepath.Join(basePath, f), fileContents, 0644)
 	}
@@ -45,7 +55,7 @@ func cleanupTestdata() {
 	os.RemoveAll(basePath)
 }
 
-func compressedFileContainsItself() bool {
+func compressedFileContains(name string) bool {
 	f, _ := os.Open(tarGzPath)
 	defer f.Close()
 
@@ -58,7 +68,7 @@ func compressedFileContainsItself() bool {
 			break
 		}
 
-		if strings.Contains(header.Name, compressedFileName) {
+		if strings.Contains(header.Name, name) {
 			return true
 		}
 	}

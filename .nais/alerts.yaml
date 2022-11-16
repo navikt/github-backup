@@ -1,0 +1,19 @@
+apiVersion: nais.io/v1
+kind: Alert
+metadata:
+  name: github-backup
+  namespace: nais
+  labels:
+    team: nais
+spec:
+  receivers:
+    slack:
+      channel: {{ alert_channel }}
+      send_resolved: false
+  alerts:
+    - alert: GitHub backup failed
+      description: Naisjob github-backup failed
+      expr: kube_job_failed{job_name=~"^github-backup.*", namespace="nais"} > 0
+      for: 1m
+      action: "Check the logs"
+      severity: warning

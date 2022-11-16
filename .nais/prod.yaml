@@ -1,1 +1,2 @@
 schedule: "0 23 * * *"
+alert_channel: '#nais-alerts-prod'
