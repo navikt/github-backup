@@ -19,7 +19,6 @@ func ReposFor(org, authToken string) ([]Repo, error) {
 	urlRaw := fmt.Sprintf("https://api.github.com/orgs/%s/repos", org)
 	var allRepos []Repo
 	for urlRaw != "" {
-		print(".")
 		var reposPart []Repo
 		res, err := getRequest(urlRaw, authToken)
 		if err != nil {
@@ -37,7 +36,6 @@ func ReposFor(org, authToken string) ([]Repo, error) {
 		linkHeader := res.Header.Get("Link")
 		urlRaw = nextUrl(linkHeader)
 	}
-	println("")
 	return allRepos, nil
 }
 
