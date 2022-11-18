@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github-backup/pkg/git"
+	"github-backup/pkg/objstorage"
 	"github-backup/pkg/zippings"
 	"os"
 	"path/filepath"
@@ -29,15 +30,11 @@ func main() {
 	}
 	fmt.Printf("found %d repos\n", len(repos))
 
-	for i, repo := range repos {
-		if i > 1 {
-			break
-		}
+	for _, repo := range repos {
 		fmt.Printf("cloning %s\n", repo.FullName)
 		err = git.CloneRepo(basedir, repo.FullName, "GitHubBackup", githubToken)
 		if err != nil {
-			fmt.Printf("unable to clone repo %s: %v\n", repo, err)
-			os.Exit(1)
+			fmt.Printf("unable to clone repo %s: %v\n", repo.FullName, err)
 		}
 	}
 
@@ -48,4 +45,7 @@ func main() {
 	}
 	fmt.Printf("wrote compressed file %s\n", compressedFilePath)
 
+	file, err := os.Open(compressedFilePath)
+	objstorage.CopyToBucket(file)
+	file.Close()
 }

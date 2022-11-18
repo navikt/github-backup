@@ -11,7 +11,7 @@ import (
 
 func CloneRepo(basedir, repo, username, password string) error {
 	p := filepath.Join(basedir, repo)
-	if strings.ContainsAny(p, "..") {
+	if strings.Contains(p, "..") {
 		return fmt.Errorf("%s seems like a bogus directory", p)
 	}
 	_, err := git.PlainClone(p, false, &git.CloneOptions{
