@@ -21,6 +21,7 @@ func CloneRepo(basedir, repo, username, password string) error {
 			Username: username,
 			Password: password,
 		},
+		Depth: 1,
 	})
 	return err
 }

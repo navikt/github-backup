@@ -19,6 +19,13 @@ const MaxConcurrent = 10
 func main() {
 	compressedFileName := fmt.Sprintf("ghbackup_%s.tar.gz", time.Now().Format("2006-01-02T15:04:05-0700"))
 	compressedFilePath := filepath.Join(basedir, compressedFileName)
+
+	bucketName, found := os.LookupEnv("BUCKET_NAME")
+	if !found {
+		fmt.Println("'BUCKET_NAME' not found in env, I'm useless without it")
+		os.Exit(1)
+	}
+
 	githubToken, found := os.LookupEnv("GITHUB_TOKEN")
 	fmt.Println("retrieving list of repos from github")
 	if !found {
@@ -63,6 +70,6 @@ func main() {
 		fmt.Printf("unable to open file '%s' %v\n", compressedFilePath, err)
 		os.Exit(1)
 	}
-	objstorage.CopyToBucket(file)
+	objstorage.CopyToBucket(file, bucketName)
 	file.Close()
 }

@@ -2,12 +2,19 @@ apiVersion: nais.io/v1
 kind: Naisjob
 metadata:
   labels:
-    team: nais
+    team: aura
   name:  github-backup
-  namespace: nais
+  namespace: aura
 spec:
   image: {{ image }}
   schedule: {{ schedule }}
   ttlSecondsAfterFinished: 300
+  env:
+    - name: BUCKET_NAME
+      value: {{ bucket_name }}
   envFrom:
     - secret: github-backup-config
+  gcp:
+    buckets:
+      - name: {{ bucket_name }}
+        retentionPeriodDays: 30

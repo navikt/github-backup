@@ -4,25 +4,20 @@ import (
 	"cloud.google.com/go/storage"
 	"context"
 	"fmt"
-	"google.golang.org/api/option"
 	"io"
 	"os"
-)
-
-const (
-	bucketName = "github-backup"
 )
 
 var client *storage.Client
 
 func init() {
 	ctx := context.Background()
-	c, err := storage.NewClient(ctx, option.WithCredentialsJSON([]byte{})) // TODO auth
+	c, err := storage.NewClient(ctx)
 	check(err)
 	client = c
 }
 
-func CopyToBucket(localSrcFile *os.File) {
+func CopyToBucket(localSrcFile *os.File, bucketName string) {
 	fmt.Printf("copying %s to bucket\n", localSrcFile.Name())
 	ctx := context.Background()
 	bucket := client.Bucket(bucketName)
