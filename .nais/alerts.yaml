@@ -2,9 +2,9 @@ apiVersion: nais.io/v1
 kind: Alert
 metadata:
   name: github-backup
-  namespace: nais
+  namespace: aura
   labels:
-    team: nais
+    team: aura
 spec:
   receivers:
     slack:

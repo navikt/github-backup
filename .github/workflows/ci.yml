@@ -11,7 +11,7 @@ jobs:
     name: Build all the things
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@7884fcad6b5d53d10323aee724dc68d8b9096a2e # ratchet:actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Install cosign
         uses: sigstore/cosign-installer@7e0881f8fe90b25e305bbf0309761e9314607e25 # ratchet:sigstore/cosign-installer@main
         with:
@@ -41,7 +41,7 @@ jobs:
     needs: build
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@7884fcad6b5d53d10323aee724dc68d8b9096a2e # ratchet:actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Generate Docker image tag
         id: dockertag
         run: echo "docker_img=ghcr.io/${{ github.repository }}:$(git rev-parse --short HEAD)" >> ${GITHUB_OUTPUT}
