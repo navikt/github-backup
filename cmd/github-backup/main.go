@@ -7,11 +7,14 @@ import (
 	"github-backup/pkg/zippings"
 	"os"
 	"path/filepath"
+	"sync"
 	"time"
 )
 
 var basedir = "/tmp/ghbackup"
-var denylist = []string{".git/"}
+var denylist []string
+
+const MaxConcurrent = 10
 
 func main() {
 	compressedFileName := fmt.Sprintf("ghbackup_%s.tar.gz", time.Now().Format("2006-01-02T15:04:05-0700"))
@@ -30,13 +33,23 @@ func main() {
 	}
 	fmt.Printf("found %d repos\n", len(repos))
 
+	workQueue := make(chan git.Repo, MaxConcurrent)
+	var wg sync.WaitGroup
+	wg.Add(len(repos))
 	for _, repo := range repos {
-		fmt.Printf("cloning %s\n", repo.FullName)
-		err = git.CloneRepo(basedir, repo.FullName, "GitHubBackup", githubToken)
-		if err != nil {
-			fmt.Printf("unable to clone repo %s: %v\n", repo.FullName, err)
-		}
+		r := repo
+		workQueue <- r
+		go func() {
+			fmt.Printf("cloning %s\n", r.FullName)
+			err = git.CloneRepo(basedir, r.FullName, "GitHubBackup", githubToken)
+			if err != nil {
+				fmt.Printf("unable to clone repo %s: %v\n", r.FullName, err)
+			}
+			<-workQueue
+			wg.Done()
+		}()
 	}
+	wg.Wait()
 
 	err = zippings.CompressIt(basedir, compressedFilePath, denylist)
 	if err != nil {
@@ -46,6 +59,10 @@ func main() {
 	fmt.Printf("wrote compressed file %s\n", compressedFilePath)
 
 	file, err := os.Open(compressedFilePath)
+	if err != nil {
+		fmt.Printf("unable to open file '%s' %v\n", compressedFilePath, err)
+		os.Exit(1)
+	}
 	objstorage.CopyToBucket(file)
 	file.Close()
 }
