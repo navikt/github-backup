@@ -8,68 +8,84 @@ import (
 	"os"
 	"path/filepath"
 	"sync"
-	"time"
 )
 
 var basedir = "/tmp/ghbackup"
 var denylist []string
 
-const MaxConcurrent = 10
+const MaxConcurrent = 5
 
 func main() {
-	compressedFileName := fmt.Sprintf("ghbackup_%s.tar.gz", time.Now().Format("2006-01-02T15:04:05-0700"))
-	compressedFilePath := filepath.Join(basedir, compressedFileName)
+	bucketname := envOrDie("BUCKET_NAME")
+	githubToken := envOrDie("GITHUB_TOKEN")
 
-	bucketName, found := os.LookupEnv("BUCKET_NAME")
-	if !found {
-		fmt.Println("'BUCKET_NAME' not found in env, I'm useless without it")
-		os.Exit(1)
-	}
-
-	githubToken, found := os.LookupEnv("GITHUB_TOKEN")
-	fmt.Println("retrieving list of repos from github")
-	if !found {
-		fmt.Println("'GITHUB_TOKEN' not found in env, I'm useless without it")
-		os.Exit(1)
-	}
-
-	repos, err := git.ReposFor("navikt", githubToken)
-	if err != nil {
-		fmt.Printf("couldn't get list of repos: %v\n", err)
-		os.Exit(1)
-	}
+	repos := reposOrDie("navikt", githubToken)
 	fmt.Printf("found %d repos\n", len(repos))
 
-	workQueue := make(chan git.Repo, MaxConcurrent)
+	workQueue := make(chan int, MaxConcurrent)
 	var wg sync.WaitGroup
 	wg.Add(len(repos))
 	for _, repo := range repos {
 		r := repo
-		workQueue <- r
+		workQueue <- 1
 		go func() {
-			fmt.Printf("cloning %s\n", r.FullName)
-			err = git.CloneRepo(basedir, r.FullName, "GitHubBackup", githubToken)
+			err := cloneZipAndStoreInBucket(r.FullName, bucketname, githubToken)
 			if err != nil {
-				fmt.Printf("unable to clone repo %s: %v\n", r.FullName, err)
+				fmt.Printf("could'n clone '%s': %v", r.FullName, err)
 			}
 			<-workQueue
 			wg.Done()
 		}()
 	}
 	wg.Wait()
+}
 
+func cloneZipAndStoreInBucket(repo string, bucketname string, githubToken string) error {
+	err := git.CloneRepo(basedir, repo, "NAVGitHubBackup", githubToken)
+	if err != nil {
+		return err
+	}
+
+	compressedFileName := objstorage.FilenameFor(repo)
+	compressedFilePath := filepath.Join(basedir, compressedFileName)
 	err = zippings.CompressIt(basedir, compressedFilePath, denylist)
 	if err != nil {
-		fmt.Printf("unable to compress the cloned repos: %v\n", err)
-		os.Exit(1)
+		return err
 	}
-	fmt.Printf("wrote compressed file %s\n", compressedFilePath)
 
 	file, err := os.Open(compressedFilePath)
+	defer file.Close()
 	if err != nil {
-		fmt.Printf("unable to open file '%s' %v\n", compressedFilePath, err)
+		return err
+	}
+	objstorage.CopyToBucket(file, bucketname)
+
+	err = os.RemoveAll(filepath.Join(basedir, repo))
+	if err != nil {
+		return err
+	}
+	err = os.RemoveAll(compressedFilePath)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func envOrDie(name string) string {
+	value, found := os.LookupEnv(name)
+	if !found {
+		fmt.Printf("unable to find env var '%s', I'm useless without it", name)
 		os.Exit(1)
 	}
-	objstorage.CopyToBucket(file, bucketName)
-	file.Close()
+	return value
+}
+
+func reposOrDie(org string, githubToken string) []git.Repo {
+	repos, err := git.ReposFor("navikt", githubToken)
+	if err != nil {
+		fmt.Printf("couldn't get list of repos: %v\n", err)
+		os.Exit(1)
+	}
+	return repos
 }

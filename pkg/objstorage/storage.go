@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
+	"time"
 )
 
 var client *storage.Client
@@ -37,6 +39,12 @@ func CopyToBucket(localSrcFile *os.File, bucketName string) {
 		}
 	}
 	fmt.Printf("copied %s to bucket\n", localSrcFile.Name())
+}
+
+func FilenameFor(reponame string) string {
+	now := time.Now().Format("2006-01-02T15:04:05-0700")
+	withSlashes := fmt.Sprintf("ghbackup_%s_%s.tar.gz", reponame, now)
+	return strings.ReplaceAll(withSlashes, "/", "_")
 }
 
 func check(err error) {
