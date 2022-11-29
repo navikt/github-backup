@@ -21,7 +21,7 @@ func init() {
 }
 
 func CopyToBucket(localSrcFile *os.File, bucketName string) {
-	fmt.Printf("copying %s to bucket\n", localSrcFile.Name())
+	fmt.Printf("copying '%s' to bucket '%s'\n", localSrcFile.Name(), bucketName)
 	ctx := context.Background()
 	bucket := client.Bucket(bucketName)
 	obj := bucket.Object(localSrcFile.Name())

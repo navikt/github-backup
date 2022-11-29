@@ -24,13 +24,17 @@ func CompressIt(src, compressedFilename string, denyList []string) error {
 		if err != nil {
 			return err
 		}
-		if !fileInfo.Mode().IsRegular() {
-			return nil
-		}
 		if shouldBeSkipped(compressedFilename, file, denyList) {
 			return nil
 		}
-		header, err := tar.FileInfoHeader(fileInfo, file)
+		var link string
+		if fileInfo.Mode()&os.ModeSymlink == os.ModeSymlink {
+			if link, err = os.Readlink(file); err != nil {
+				return err
+			}
+		}
+
+		header, err := tar.FileInfoHeader(fileInfo, link)
 		if err != nil {
 			return err
 		}
