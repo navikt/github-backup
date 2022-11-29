@@ -31,7 +31,7 @@ func main() {
 		go func() {
 			err := cloneZipAndStoreInBucket(r.FullName, bucketname, githubToken)
 			if err != nil {
-				fmt.Printf("could'nt clone '%s': %v\n", r.FullName, err)
+				fmt.Printf("failed to backup repo '%s': %v\n", r.FullName, err)
 			}
 			<-workQueue
 			wg.Done()

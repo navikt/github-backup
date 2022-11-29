@@ -30,7 +30,7 @@ func CompressIt(src, compressedFilename string, denyList []string) error {
 		if shouldBeSkipped(compressedFilename, file, denyList) {
 			return nil
 		}
-		header, err := tar.FileInfoHeader(fileInfo, fileInfo.Name())
+		header, err := tar.FileInfoHeader(fileInfo, file)
 		if err != nil {
 			return err
 		}
