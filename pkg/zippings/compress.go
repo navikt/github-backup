@@ -38,19 +38,19 @@ func CompressIt(src, compressedFilename string, denyList []string) error {
 		if err != nil {
 			return err
 		}
-		header.Name = strings.TrimPrefix(strings.Replace(file, src, "", -1), string(filepath.Separator))
+		header.Name = filepath.ToSlash(file)
 		if err := tw.WriteHeader(header); err != nil {
 			return err
 		}
-		f, err := os.Open(file)
-		if err != nil {
-			return err
-		}
-		if _, err := io.Copy(tw, f); err != nil {
-			return err
-		}
-		if err := f.Close(); err != nil {
-			return err
+		if !fileInfo.IsDir() {
+			f, err := os.Open(file)
+			defer f.Close()
+			if err != nil {
+				return err
+			}
+			if _, err := io.Copy(tw, f); err != nil {
+				return err
+			}
 		}
 
 		return nil
