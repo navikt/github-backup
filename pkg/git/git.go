@@ -12,7 +12,7 @@ import (
 func CloneRepo(basedir, repo, username, password string) error {
 	p := filepath.Join(basedir, repo)
 	if strings.Contains(p, "..") {
-		return fmt.Errorf("%s seems like a bogus directory", p)
+		return fmt.Errorf("%s seems like a bogus directory\n", p)
 	}
 	_, err := git.PlainClone(p, false, &git.CloneOptions{
 		URL:      fmt.Sprintf("https://github.com/%s", repo),

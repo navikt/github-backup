@@ -31,7 +31,7 @@ func main() {
 		go func() {
 			err := cloneZipAndStoreInBucket(r.FullName, bucketname, githubToken)
 			if err != nil {
-				fmt.Printf("could'n clone '%s': %v", r.FullName, err)
+				fmt.Printf("could'nt clone '%s': %v\n", r.FullName, err)
 			}
 			<-workQueue
 			wg.Done()
@@ -75,7 +75,7 @@ func cloneZipAndStoreInBucket(repo string, bucketname string, githubToken string
 func envOrDie(name string) string {
 	value, found := os.LookupEnv(name)
 	if !found {
-		fmt.Printf("unable to find env var '%s', I'm useless without it", name)
+		fmt.Printf("unable to find env var '%s', I'm useless without it\n", name)
 		os.Exit(1)
 	}
 	return value
