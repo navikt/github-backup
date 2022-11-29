@@ -4,6 +4,7 @@ import (
 	"cloud.google.com/go/storage"
 	"context"
 	"fmt"
+	"google.golang.org/api/option"
 	"io"
 	"os"
 	"strings"
@@ -14,7 +15,7 @@ var client *storage.Client
 
 func init() {
 	ctx := context.Background()
-	c, err := storage.NewClient(ctx)
+	c, err := storage.NewClient(ctx, option.WithoutAuthentication())
 	check(err)
 	client = c
 }
