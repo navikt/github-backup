@@ -25,7 +25,7 @@ func TestCompressedFileExcludesItself(t *testing.T) {
 	})
 }
 
-func TestSlashesAreReplacedInFilenamed(t *testing.T) {
+func TestSlashesAreReplacedInFilenames(t *testing.T) {
 	filename := FilenameFor("navikt/whatever")
 	assert.False(t, strings.Contains(filename, "/"))
 }
