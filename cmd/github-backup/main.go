@@ -24,10 +24,7 @@ func main() {
 	workQueue := make(chan int, MaxConcurrent)
 	var wg sync.WaitGroup
 	wg.Add(len(repos))
-	for i, repo := range repos {
-		if i > 3 {
-			break
-		}
+	for _, repo := range repos {
 		r := repo
 		workQueue <- 1
 		go func() {
