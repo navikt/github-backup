@@ -12,7 +12,7 @@ import (
 
 var basedir = filepath.Join(os.TempDir(), "ghbackup")
 
-const MaxConcurrent = 5
+const MaxConcurrent = 3
 
 func main() {
 	bucketname := envOrDie("BUCKET_NAME")
@@ -24,7 +24,10 @@ func main() {
 	workQueue := make(chan int, MaxConcurrent)
 	var wg sync.WaitGroup
 	wg.Add(len(repos))
-	for _, repo := range repos {
+	for i, repo := range repos {
+		if i > 3 {
+			break
+		}
 		r := repo
 		workQueue <- 1
 		go func() {
