@@ -25,7 +25,6 @@ func CompressIt(src, compressedFilename string) error {
 		}
 
 		if shouldBeSkipped(compressedFilename, file) || fileInfo.IsDir() {
-			fmt.Printf("skipping %s\n", file)
 			return nil
 		}
 
