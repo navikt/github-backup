@@ -10,8 +10,7 @@ import (
 	"sync"
 )
 
-var basedir = "/tmp/ghbackup"
-var denylist []string
+var basedir = filepath.Join(os.TempDir(), "ghbackup")
 
 const MaxConcurrent = 5
 
@@ -46,9 +45,10 @@ func cloneZipAndStoreInBucket(repo string, bucketname string, githubToken string
 		return err
 	}
 
-	compressedFileName := objstorage.FilenameFor(repo)
+	compressedFileName := zippings.FilenameFor(repo)
 	compressedFilePath := filepath.Join(basedir, compressedFileName)
-	err = zippings.CompressIt(basedir, compressedFilePath, denylist)
+	repodir := filepath.Join(basedir, repo)
+	err = zippings.CompressIt(repodir, compressedFilePath)
 	if err != nil {
 		return err
 	}
@@ -58,12 +58,17 @@ func cloneZipAndStoreInBucket(repo string, bucketname string, githubToken string
 	if err != nil {
 		return err
 	}
-	objstorage.CopyToBucket(file, bucketname)
-
-	err = os.RemoveAll(filepath.Join(basedir, repo))
+	err = objstorage.CopyToBucket(file, bucketname)
 	if err != nil {
 		return err
 	}
+
+	fmt.Printf("deleting %s\n", filepath.Join(basedir, repo))
+	err = os.RemoveAll(repodir)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("deleting %s\n", compressedFilePath)
 	err = os.RemoveAll(compressedFilePath)
 	if err != nil {
 		return err

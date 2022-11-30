@@ -1,10 +1,9 @@
 package zippings
 
 import (
-	"archive/tar"
-	"compress/gzip"
+	"archive/zip"
+	"fmt"
 	"github.com/stretchr/testify/assert"
-	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -12,28 +11,23 @@ import (
 )
 
 var basePath = filepath.Join(os.TempDir(), "foo")
-var compressedFileName = "compressed_stuff.tar.gz"
-var tarGzPath = filepath.Join(basePath, compressedFileName)
+var compressedFileName = "compressed_stuff.zip"
+var compressedFilePath = filepath.Join(basePath, compressedFileName)
 
 func TestCompressedFileExcludesItself(t *testing.T) {
 	withTestdata(func() {
-		err := CompressIt(basePath, tarGzPath, []string{})
+		err := CompressIt(basePath, compressedFilePath)
 		assert.NoError(t, err)
-		fileStats, err := os.Stat(tarGzPath)
+		fileStats, err := os.Stat(compressedFilePath)
 		assert.NoError(t, err)
 		assert.True(t, fileStats.Size() > 0)
 		assert.False(t, compressedFileContains(compressedFileName))
 	})
 }
 
-func TestDenylistedFilesAreExcluded(t *testing.T) {
-	withTestdata(func() {
-		err := CompressIt(basePath, tarGzPath, []string{".git/"})
-		assert.NoError(t, err)
-		assert.True(t, compressedFileContains("file1"))
-		assert.True(t, compressedFileContains("file2"))
-		assert.False(t, compressedFileContains(".git/whatever"))
-	})
+func TestSlashesAreReplacedInFilenamed(t *testing.T) {
+	filename := FilenameFor("navikt/whatever")
+	assert.False(t, strings.Contains(filename, "/"))
 }
 
 func withTestdata(f func()) {
@@ -56,21 +50,11 @@ func cleanupTestdata() {
 }
 
 func compressedFileContains(name string) bool {
-	f, _ := os.Open(tarGzPath)
-	defer f.Close()
-
-	gzf, _ := gzip.NewReader(f)
-	tarReader := tar.NewReader(gzf)
-
-	for {
-		header, err := tarReader.Next()
-		if err == io.EOF {
-			break
-		}
-
-		if strings.Contains(header.Name, name) {
-			return true
-		}
+	archive, _ := zip.OpenReader(compressedFilePath)
+	defer archive.Close()
+	for _, f := range archive.File {
+		fmt.Printf("'%s' contains '%s': %v\n", f.Name, name, strings.Contains(f.Name, name))
+		return strings.Contains(f.Name, name)
 	}
 	return false
 }

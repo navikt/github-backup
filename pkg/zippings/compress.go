@@ -1,71 +1,61 @@
 package zippings
 
 import (
-	"archive/tar"
-	"compress/gzip"
+	"archive/zip"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
-func CompressIt(src, compressedFilename string, denyList []string) error {
-	tarGzFile, err := os.OpenFile(compressedFilename, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0600)
-	defer tarGzFile.Close()
+func CompressIt(src, compressedFilename string) error {
+	archive, err := os.Create(compressedFilename)
 	if err != nil {
 		return err
 	}
-	gzw := gzip.NewWriter(tarGzFile)
-	defer gzw.Close()
-	tw := tar.NewWriter(gzw)
-	defer tw.Close()
+	zipWriter := zip.NewWriter(archive)
+	defer archive.Close()
+	defer zipWriter.Close()
 
 	return filepath.Walk(src, func(file string, fileInfo os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
-		if shouldBeSkipped(compressedFilename, file, denyList) {
+
+		if shouldBeSkipped(compressedFilename, file) || fileInfo.IsDir() {
+			fmt.Printf("skipping %s\n", file)
 			return nil
 		}
-		var link string
-		if fileInfo.Mode()&os.ModeSymlink == os.ModeSymlink {
-			if link, err = os.Readlink(file); err != nil {
-				return err
-			}
-		}
 
-		header, err := tar.FileInfoHeader(fileInfo, link)
+		f, err := os.Open(file)
 		if err != nil {
 			return err
 		}
-		header.Name = filepath.ToSlash(file)
-		if err := tw.WriteHeader(header); err != nil {
+		defer f.Close()
+		writer, err := zipWriter.Create(strings.TrimPrefix(file, src+"/"))
+		if err != nil {
 			return err
 		}
-		if !fileInfo.IsDir() {
-			f, err := os.Open(file)
-			defer f.Close()
-			if err != nil {
-				return err
-			}
-			if _, err := io.Copy(tw, f); err != nil {
-				return err
-			}
+		if _, err := io.Copy(writer, f); err != nil {
+			return err
 		}
 
 		return nil
 	})
 }
 
-func shouldBeSkipped(compressedFilename, filenameToTest string, denylist []string) bool {
+func FilenameFor(reponame string) string {
+	now := time.Now().Format("2006-01-02-15:04:05")
+	withSlashes := fmt.Sprintf("ghbackup_%s_%s.zip", reponame, now)
+	return strings.ReplaceAll(withSlashes, "/", "_")
+}
+
+func shouldBeSkipped(compressedFilename, filenameToTest string) bool {
 	// do not re-compress our own file
 	if strings.HasSuffix(compressedFilename, filenameToTest) {
 		return true
-	}
-	for _, path := range denylist {
-		if strings.Contains(filenameToTest, path) {
-			return true
-		}
 	}
 	return false
 }
