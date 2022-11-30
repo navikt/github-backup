@@ -27,22 +27,10 @@ func CopyToBucket(localSrcFile *os.File, bucketName string) error {
 	obj := bucket.Object(localSrcFile.Name())
 	bucketWriter := obj.NewWriter(ctx)
 	defer bucketWriter.Close()
-	buf := make([]byte, 51200)
-	for {
-		bytesRead, err := localSrcFile.Read(buf)
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			return err
-		}
-		if bytesRead > 0 {
-			_, err := bucketWriter.Write(buf[:bytesRead])
-			if err != nil {
-				return err
-			}
-		}
+	written, err := io.Copy(bucketWriter, localSrcFile)
+	if err != nil {
+		return err
 	}
-	fmt.Printf("copied %s to bucket\n", localSrcFile.Name())
+	fmt.Printf("wrote %d bytes to '%s'\n", written, bucketName)
 	return nil
 }
