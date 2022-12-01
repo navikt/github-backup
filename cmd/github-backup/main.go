@@ -60,19 +60,11 @@ func cloneZipAndStoreInBucket(repo string, bucketname string, githubToken string
 	}
 	err = objstorage.CopyToBucket(file, bucketname)
 	if err != nil {
+		rm([]string{repodir, compressedFilePath})
 		return err
 	}
 
-	fmt.Printf("deleting %s\n", filepath.Join(basedir, repo))
-	err = os.RemoveAll(repodir)
-	if err != nil {
-		return err
-	}
-	fmt.Printf("deleting %s\n", compressedFilePath)
-	err = os.RemoveAll(compressedFilePath)
-	if err != nil {
-		return err
-	}
+	rm([]string{repodir, compressedFilePath})
 
 	return nil
 }
@@ -93,4 +85,14 @@ func reposOrDie(org string, githubToken string) []git.Repo {
 		os.Exit(1)
 	}
 	return repos
+}
+
+func rm(entries []string) {
+	for _, f := range entries {
+		fmt.Printf("deleting %s\n", f)
+		err := os.RemoveAll(f)
+		if err != nil {
+			fmt.Printf("unable to delete %s: %v\n", f, err)
+		}
+	}
 }
