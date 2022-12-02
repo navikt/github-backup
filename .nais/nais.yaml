@@ -9,6 +9,9 @@ spec:
   image: {{ image }}
   schedule: {{ schedule }}
   ttlSecondsAfterFinished: 300
+  resources:
+    limits:
+      memory: 1G
   env:
     - name: BUCKET_NAME
       value: {{ bucket_name }}
