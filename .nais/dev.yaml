@@ -1,3 +1,3 @@
 schedule: "0 22 * * 1"
 alert_channel: 'nais-alerts-dev'
-bucket_name: "dev-nav-github-backup"
+bucket_name: "dev-github-repos-backup"
