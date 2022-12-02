@@ -46,7 +46,7 @@ func CompressIt(src, compressedFilename string) error {
 }
 
 func FilenameFor(reponame string) string {
-	now := time.Now().Format("2006-01-02-15:04:05")
+	now := time.Now().Format("2006_01_02_15_04_05")
 	withSlashes := fmt.Sprintf("ghbackup_%s_%s.zip", reponame, now)
 	return strings.ReplaceAll(withSlashes, "/", "_")
 }
