@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github-backup/pkg/git"
+	"github-backup/pkg/objstorage"
 	"github-backup/pkg/zippings"
 	"os"
 	"path/filepath"
@@ -62,11 +63,11 @@ func cloneZipAndStoreInBucket(repo string, bucketname string, githubToken string
 		rm([]string{repodir, compressedFilePath})
 		return err
 	}
-	//err = objstorage.CopyToBucket(file, bucketname)
-	//if err != nil {
-	//	rm([]string{repodir, compressedFilePath})
-	//	return err
-	//}
+	err = objstorage.CopyToBucket(file, bucketname)
+	if err != nil {
+		rm([]string{repodir, compressedFilePath})
+		return err
+	}
 
 	rm([]string{repodir, compressedFilePath})
 
