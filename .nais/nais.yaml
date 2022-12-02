@@ -11,7 +11,7 @@ spec:
   ttlSecondsAfterFinished: 300
   resources:
     limits:
-      memory: 1Gi
+      memory: 2Gi
       cpu: 5
     requests:
       cpu: 500m
