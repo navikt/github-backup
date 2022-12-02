@@ -11,7 +11,7 @@ spec:
   ttlSecondsAfterFinished: 300
   resources:
     limits:
-      memory: 1G
+      memory: 1Gi
   env:
     - name: BUCKET_NAME
       value: {{ bucket_name }}
