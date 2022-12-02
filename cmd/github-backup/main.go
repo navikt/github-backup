@@ -23,7 +23,8 @@ func main() {
 	workQueue := make(chan int, MaxConcurrent)
 	var wg sync.WaitGroup
 	wg.Add(len(repos))
-	for _, repo := range repos {
+	for i, repo := range repos {
+		fmt.Printf("processing repo %d of %d\n", i, len(repos))
 		r := repo
 		workQueue <- 1
 		go func() {
