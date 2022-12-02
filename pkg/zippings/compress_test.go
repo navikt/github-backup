@@ -37,16 +37,16 @@ func withTestdata(f func()) {
 }
 
 func createTestdata() {
-	os.MkdirAll(filepath.Join(basePath, ".git"), 0744)
+	_ = os.MkdirAll(filepath.Join(basePath, ".git"), 0744)
 	filenames := []string{"file1", "file2", ".git/whatever"}
 	fileContents := []byte("hello")
 	for _, f := range filenames {
-		os.WriteFile(filepath.Join(basePath, f), fileContents, 0644)
+		_ = os.WriteFile(filepath.Join(basePath, f), fileContents, 0644)
 	}
 }
 
 func cleanupTestdata() {
-	os.RemoveAll(basePath)
+	_ = os.RemoveAll(basePath)
 }
 
 func compressedFileContains(name string) bool {

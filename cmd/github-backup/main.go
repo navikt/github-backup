@@ -25,7 +25,7 @@ func main() {
 	var wg sync.WaitGroup
 	wg.Add(len(repos))
 	for i, repo := range repos {
-		fmt.Printf("processing repo %d of %d\n", i, len(repos))
+		fmt.Printf("processing repo %d of %d\n", i+1, len(repos))
 		r := repo
 		workQueue <- 1
 		go func() {
