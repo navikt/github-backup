@@ -4,6 +4,7 @@ import (
 	"cloud.google.com/go/storage"
 	"context"
 	"fmt"
+	"google.golang.org/api/option"
 	"io"
 	"os"
 	"path/filepath"
@@ -15,7 +16,7 @@ var objBasePath = time.Now().Format("2006/01/02/15/04")
 
 func init() {
 	ctx := context.Background()
-	c, err := storage.NewClient(ctx)
+	c, err := storage.NewClient(ctx, option.WithoutAuthentication())
 	if err != nil {
 		panic(err)
 	}
