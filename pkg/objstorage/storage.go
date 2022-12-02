@@ -12,7 +12,7 @@ import (
 )
 
 var client *storage.Client
-var objBasePath = time.Now().Format("2006/01/02/15/04")
+var objBasePath = filepath.Join("/", time.Now().Format("2006/01/02"))
 
 func init() {
 	ctx := context.Background()
