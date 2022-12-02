@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"github-backup/pkg/git"
-	"github-backup/pkg/objstorage"
 	"github-backup/pkg/zippings"
 	"os"
 	"path/filepath"
@@ -40,29 +39,33 @@ func main() {
 }
 
 func cloneZipAndStoreInBucket(repo string, bucketname string, githubToken string) error {
-	err := git.CloneRepo(basedir, repo, "NAVGitHubBackup", githubToken)
-	if err != nil {
-		return err
-	}
-
 	compressedFileName := zippings.FilenameFor(repo)
 	compressedFilePath := filepath.Join(basedir, compressedFileName)
 	repodir := filepath.Join(basedir, repo)
+
+	err := git.CloneRepo(basedir, repo, "NAVGitHubBackup", githubToken)
+	if err != nil {
+		rm([]string{repodir})
+		return err
+	}
+
 	err = zippings.CompressIt(repodir, compressedFilePath)
 	if err != nil {
+		rm([]string{repodir, compressedFilePath})
 		return err
 	}
 
 	file, err := os.Open(compressedFilePath)
 	defer file.Close()
 	if err != nil {
-		return err
-	}
-	err = objstorage.CopyToBucket(file, bucketname)
-	if err != nil {
 		rm([]string{repodir, compressedFilePath})
 		return err
 	}
+	//err = objstorage.CopyToBucket(file, bucketname)
+	//if err != nil {
+	//	rm([]string{repodir, compressedFilePath})
+	//	return err
+	//}
 
 	rm([]string{repodir, compressedFilePath})
 
@@ -79,7 +82,7 @@ func envOrDie(name string) string {
 }
 
 func reposOrDie(org string, githubToken string) []git.Repo {
-	repos, err := git.ReposFor("navikt", githubToken)
+	repos, err := git.ReposFor(org, githubToken)
 	if err != nil {
 		fmt.Printf("couldn't get list of repos: %v\n", err)
 		os.Exit(1)
