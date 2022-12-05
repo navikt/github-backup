@@ -24,21 +24,22 @@ func init() {
 }
 
 func CopyToBucket(localSrcFile *os.File, bucketName string) error {
-	fmt.Printf("copying '%s' to bucket '%s'\n", localSrcFile.Name(), bucketName)
 	srcFilename, err := FilenameWithoutPath(localSrcFile)
 	if err != nil {
 		return err
 	}
 	ctx := context.Background()
 	bucket := client.Bucket(bucketName)
-	obj := bucket.Object(filepath.Join(objBasePath, srcFilename))
+	objName := filepath.Join(objBasePath, srcFilename)
+	fmt.Printf("copying '%s' to '%s' in bucket '%s'\n", srcFilename, objName, bucketName)
+	obj := bucket.Object(objName)
 	bucketWriter := obj.NewWriter(ctx)
 	defer bucketWriter.Close()
 	written, err := io.Copy(bucketWriter, localSrcFile)
 	if err != nil {
 		return err
 	}
-	fmt.Printf("wrote %d bytes to '%s'\n", written, bucketName)
+	fmt.Printf("wrote %d bytes to '%s'\n", written, objName)
 	return nil
 }
 
