@@ -35,8 +35,8 @@ jobs:
           tags: ${{ steps.dockertag.outputs.docker_img }}
           cache-from: type=registry,ref=${{ steps.dockertag.outputs.docker_img }}
           cache-to: type=inline
-  deploy_to_dev:
-    name: Deploy to dev
+  deploy:
+    name: Deploy to prod
     needs: build
     runs-on: ubuntu-20.04
     steps:
@@ -47,7 +47,7 @@ jobs:
       - uses: nais/deploy/actions/deploy@357990b08f857f576a548d31cc69d40820978589 # ratchet:nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-          CLUSTER: dev-gcp
+          CLUSTER: prod-gcp
           RESOURCE: .nais/nais.yaml,.nais/alerts.yaml
           IMAGE: ${{ steps.dockertag.outputs.docker_img }}
-          VARS: .nais/dev.yaml
+          VARS: .nais/prod.yaml
