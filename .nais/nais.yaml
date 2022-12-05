@@ -23,4 +23,4 @@ spec:
   gcp:
     buckets:
       - name: {{ bucket_name }}
-        retentionPeriodDays: 30
+        publicAccessPrevention: true
