@@ -21,9 +21,9 @@ func CopyToBucket(gcsClient *storage.Client, localSrcFile *os.File, bucketName s
 	objName := filepath.Join(objBasePath, srcFilename)
 	fmt.Printf("copying '%s' to '%s' in bucket '%s'\n", srcFilename, objName, bucketName)
 	obj := bucket.Object(objName)
-	bucketWriter := obj.NewWriter(ctx)
-	defer bucketWriter.Close()
-	written, err := io.Copy(bucketWriter, localSrcFile)
+	objWriter := obj.NewWriter(ctx)
+	defer objWriter.Close()
+	written, err := io.Copy(objWriter, localSrcFile)
 	if err != nil {
 		return err
 	}
