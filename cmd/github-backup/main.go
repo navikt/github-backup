@@ -1,6 +1,8 @@
 package main
 
 import (
+	"cloud.google.com/go/storage"
+	"context"
 	"fmt"
 	"github-backup/pkg/git"
 	"github-backup/pkg/objstorage"
@@ -21,6 +23,12 @@ func main() {
 	repos := reposOrDie("navikt", githubToken)
 	fmt.Printf("found %d repos\n", len(repos))
 
+	gcsClient, err := storage.NewClient(context.Background())
+	if err != nil {
+		fmt.Printf("unable to create gcs client: %v\n", err)
+		os.Exit(1)
+	}
+
 	workQueue := make(chan int, MaxConcurrent)
 	var wg sync.WaitGroup
 	wg.Add(len(repos))
@@ -29,7 +37,7 @@ func main() {
 		r := repo
 		workQueue <- 1
 		go func() {
-			err := cloneZipAndStoreInBucket(r.FullName, bucketname, githubToken)
+			err := cloneZipAndStoreInBucket(r.FullName, bucketname, githubToken, gcsClient)
 			if err != nil {
 				fmt.Printf("failed to backup repo '%s': %v\n", r.FullName, err)
 			}
@@ -40,7 +48,7 @@ func main() {
 	wg.Wait()
 }
 
-func cloneZipAndStoreInBucket(repo string, bucketname string, githubToken string) error {
+func cloneZipAndStoreInBucket(repo string, bucketname string, githubToken string, gcsClient *storage.Client) error {
 	compressedFileName := zippings.FilenameFor(repo)
 	compressedFilePath := filepath.Join(basedir, compressedFileName)
 	repodir := filepath.Join(basedir, repo)
@@ -63,7 +71,11 @@ func cloneZipAndStoreInBucket(repo string, bucketname string, githubToken string
 		rm([]string{repodir, compressedFilePath})
 		return err
 	}
-	err = objstorage.CopyToBucket(file, bucketname)
+
+	if err != nil {
+		panic(err)
+	}
+	err = objstorage.CopyToBucket(gcsClient, file, bucketname)
 	if err != nil {
 		rm([]string{repodir, compressedFilePath})
 		return err

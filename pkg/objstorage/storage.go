@@ -4,32 +4,20 @@ import (
 	"cloud.google.com/go/storage"
 	"context"
 	"fmt"
-	"google.golang.org/api/option"
 	"io"
 	"os"
 	"path/filepath"
 	"time"
 )
 
-var client *storage.Client
-var objBasePath = time.Now().Format("2006/01/02")
-
-func init() {
-	ctx := context.Background()
-	c, err := storage.NewClient(ctx, option.WithoutAuthentication())
-	if err != nil {
-		panic(err)
-	}
-	client = c
-}
-
-func CopyToBucket(localSrcFile *os.File, bucketName string) error {
+func CopyToBucket(gcsClient *storage.Client, localSrcFile *os.File, bucketName string) error {
+	objBasePath := time.Now().Format("2006/01/02")
 	srcFilename, err := FilenameWithoutPath(localSrcFile)
 	if err != nil {
 		return err
 	}
 	ctx := context.Background()
-	bucket := client.Bucket(bucketName)
+	bucket := gcsClient.Bucket(bucketName)
 	objName := filepath.Join(objBasePath, srcFilename)
 	fmt.Printf("copying '%s' to '%s' in bucket '%s'\n", srcFilename, objName, bucketName)
 	obj := bucket.Object(objName)
