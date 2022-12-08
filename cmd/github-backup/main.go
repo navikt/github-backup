@@ -7,7 +7,6 @@ import (
 	"github-backup/pkg/git"
 	"github-backup/pkg/objstorage"
 	"github-backup/pkg/zippings"
-	"google.golang.org/api/option"
 	"os"
 	"path/filepath"
 	"sync"
@@ -24,7 +23,7 @@ func main() {
 	repos := reposOrDie("navikt", githubToken)
 	fmt.Printf("found %d repos\n", len(repos))
 
-	goog, err := storage.NewClient(context.Background(), option.WithoutAuthentication())
+	goog, err := storage.NewClient(context.Background())
 	defer goog.Close()
 	if err != nil {
 		fmt.Printf("unable to create gcs client: %v\n", err)
