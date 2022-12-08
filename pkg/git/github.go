@@ -19,6 +19,7 @@ func ReposFor(org, authToken string) ([]Repo, error) {
 	urlRaw := fmt.Sprintf("https://api.github.com/orgs/%s/repos", org)
 	var allRepos []Repo
 	for urlRaw != "" {
+		fmt.Printf("Retrieving repos from %s\n", urlRaw)
 		var reposPart []Repo
 		res, err := getRequest(urlRaw, authToken)
 		if res.StatusCode != 200 {
