@@ -7,11 +7,9 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"time"
 )
 
-func CopyToBucket(gcsClient *storage.Client, localSrcFile *os.File, bucketName string) error {
-	objBasePath := time.Now().Format("2006/01/02")
+func CopyToBucket(gcsClient *storage.Client, localSrcFile *os.File, bucketName string, objBasePath string) error {
 	srcFilename, err := FilenameWithoutPath(localSrcFile)
 	if err != nil {
 		return err
@@ -22,13 +20,12 @@ func CopyToBucket(gcsClient *storage.Client, localSrcFile *os.File, bucketName s
 	fmt.Printf("copying '%s' to '%s' in bucket '%s'\n", srcFilename, objName, bucketName)
 	obj := bucket.Object(objName)
 	objWriter := obj.NewWriter(ctx)
-	defer objWriter.Close()
 	written, err := io.Copy(objWriter, localSrcFile)
 	if err != nil {
 		return err
 	}
 	fmt.Printf("wrote %d bytes to '%s'\n", written, objName)
-	return nil
+	return objWriter.Close()
 }
 
 func FilenameWithoutPath(f *os.File) (string, error) {

@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"sync"
+	"time"
 )
 
 var basedir = filepath.Join(os.TempDir(), "ghbackup")
@@ -76,7 +77,8 @@ func cloneZipAndStoreInBucket(repo string, bucketname string, githubToken string
 	if err != nil {
 		panic(err)
 	}
-	err = objstorage.CopyToBucket(gcsClient, file, bucketname)
+	objBasePath := time.Now().Format("2006/01/02")
+	err = objstorage.CopyToBucket(gcsClient, file, bucketname, objBasePath)
 	if err != nil {
 		rm([]string{repodir, compressedFilePath})
 		return err
