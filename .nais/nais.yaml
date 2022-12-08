@@ -18,8 +18,8 @@ spec:
   env:
     - name: BUCKET_NAME
       value: {{ bucket_name }}
-    - name: GODEBUG=http2debug
-      value: "1"
+    - name: GODEBUG
+      value: "http2debug=1"
   envFrom:
     - secret: github-backup-config
   gcp:
