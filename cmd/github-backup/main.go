@@ -14,6 +14,7 @@ import (
 )
 
 var basedir = filepath.Join(os.TempDir(), "ghbackup")
+var orgs = []string{"navikt", "nais"}
 
 const MaxConcurrent = 3
 
@@ -21,7 +22,10 @@ func main() {
 	bucketname := envOrDie("BUCKET_NAME")
 	githubToken := envOrDie("GITHUB_TOKEN")
 
-	repos := reposOrDie("navikt", githubToken)
+	var repos []git.Repo
+	for _, org := range orgs {
+		repos = append(repos, reposOrDie(org, githubToken)...)
+	}
 	fmt.Printf("found %d repos\n", len(repos))
 
 	goog, err := storage.NewClient(context.Background())
