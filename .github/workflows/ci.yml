@@ -2,7 +2,7 @@ name: Build and deploy main
 on:
   push:
     branches:
-      - goify
+      - main
     paths-ignore:
       - "*.md"
   workflow_dispatch:
