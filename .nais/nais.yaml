@@ -6,7 +6,7 @@ metadata:
   name:  github-backup
   namespace: aura
 spec:
-  image: {{ image }}
+  image: {{ IMAGE }}
   schedule: {{ schedule }}
   ttlSecondsAfterFinished: 300
   resources:
