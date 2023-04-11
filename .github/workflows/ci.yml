@@ -6,7 +6,6 @@ on:
     paths-ignore:
       - "*.md"
   workflow_dispatch:
-
 jobs:
   build:
     name: Build all the things
@@ -23,16 +22,16 @@ jobs:
       BASEIMG_IDENTITY: "https://github.com/chainguard-images/images/.github/workflows/release.yaml@refs/heads/main"
       BASEIMG_ISSUER: "https://token.actions.githubusercontent.com"
     steps:
-      - uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # ratchet:actions/checkout@v3
+      - uses: actions/checkout@8f4b7f84864484a7bf31766abe9204da3cbe65b3 # ratchet:actions/checkout@v3
       - name: Install cosign
-        uses: sigstore/cosign-installer@7bca8b41164994a7dc93749d266e2f1db492f8a2 # ratchet:sigstore/cosign-installer@main
+        uses: sigstore/cosign-installer@9e9de2292db7abb3f51b7f4808d98f0d347a8919 # ratchet:sigstore/cosign-installer@main
         with:
           cosign-release: 'v2.0.0'
       - name: Verify builder image
         run: cosign verify --certificate-identity ${{ env.BASEIMG_IDENTITY }} --certificate-oidc-issuer ${{ env.BASEIMG_ISSUER }} ${{ env.BUILDER_IMG }}
       - name: Verify runner image
         run: cosign verify --certificate-identity ${{ env.BASEIMG_IDENTITY }} --certificate-oidc-issuer ${{ env.BASEIMG_ISSUER }} ${{ env.RUNNER_IMG }}
-      - uses: nais/docker-build-push@57b4262cb7e56f6b05678246342bad26b5025e91 # ratchet:nais/docker-build-push@v0
+      - uses: nais/docker-build-push@cb0eaff79bbbbb48456662b8c164c8e0c9074e38 # ratchet:nais/docker-build-push@v0
         id: docker-push
         with:
           team: aura
@@ -43,7 +42,7 @@ jobs:
       - name: Sign the container image
         run: cosign sign --yes ${{ steps.docker-push.outputs.image }}
       - name: Create SBOM
-        uses: aquasecurity/trivy-action@8bd2f9fbda2109502356ff8a6a89da55b1ead252 # ratchet:aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@1a09192c0ea4a3f42a25d6ebc3abc423c2601f1a # ratchet:aquasecurity/trivy-action@master
         with:
           scan-type: 'image'
           format: 'cyclonedx'
@@ -51,14 +50,13 @@ jobs:
           image-ref: ${{ steps.docker-push.outputs.image }}
       - name: Attest image
         run: cosign attest --yes --predicate cyclone.sbom.json --type cyclonedx ${{ steps.docker-push.outputs.image }}
-
   deploy:
     name: Deploy to prod
     needs: build
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # ratchet:actions/checkout@v3
-      - uses: nais/deploy/actions/deploy@fff9ae049178e5d3dca5c9600cf78acce63c0708 # ratchet:nais/deploy/actions/deploy@v1
+      - uses: actions/checkout@8f4b7f84864484a7bf31766abe9204da3cbe65b3 # ratchet:actions/checkout@v3
+      - uses: nais/deploy/actions/deploy@e1d100f14637a6caa0aec40f5b5c7fd0c3ce500e # ratchet:nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-gcp
