@@ -22,8 +22,10 @@ jobs:
         uses: sigstore/cosign-installer@7bca8b41164994a7dc93749d266e2f1db492f8a2 # ratchet:sigstore/cosign-installer@main
         with:
           cosign-release: 'v1.13.1'
-      - name: Verify distroless base image
-        run: cosign verify --key distroless.pub gcr.io/distroless/static-debian11
+      - name: Verify builder image
+        run: cosign verify --certificate-identity "https://github.com/chainguard-images/images/.github/workflows/release.yaml@refs/heads/main"  --certificate-oidc-issuer "https://token.actions.githubusercontent.com" cgr.dev/chainguard/go:1.20
+      - name: Verify runner image
+        run: cosign verify --certificate-identity "https://github.com/chainguard-images/images/.github/workflows/release.yaml@refs/heads/main"  --certificate-oidc-issuer "https://token.actions.githubusercontent.com" cgr.dev/chainguard/wolfi-base
       - name: Generate Docker image tag with short sha
         id: dockertag
         run: echo "docker_img=ghcr.io/${{ github.repository }}:$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
