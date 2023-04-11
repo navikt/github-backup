@@ -21,7 +21,7 @@ jobs:
       - name: Install cosign
         uses: sigstore/cosign-installer@7bca8b41164994a7dc93749d266e2f1db492f8a2 # ratchet:sigstore/cosign-installer@main
         with:
-          cosign-release: 'v1.13.1'
+          cosign-release: 'v2.0.0'
       - name: Verify builder image
         run: cosign verify --certificate-identity "https://github.com/chainguard-images/images/.github/workflows/release.yaml@refs/heads/main"  --certificate-oidc-issuer "https://token.actions.githubusercontent.com" cgr.dev/chainguard/go:1.20
       - name: Verify runner image
