@@ -18,7 +18,7 @@ jobs:
       img: ${{ steps.docker-push.outputs.image }}
     env:
       BUILDER_IMG: "cgr.dev/chainguard/go:1.20"
-      RUNNER_IMG: "cgr.dev/chainguard/wolfi-base"
+      RUNNER_IMG: "cgr.dev/chainguard/static"
       BASEIMG_IDENTITY: "https://github.com/chainguard-images/images/.github/workflows/release.yaml@refs/heads/main"
       BASEIMG_ISSUER: "https://token.actions.githubusercontent.com"
     steps:
