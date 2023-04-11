@@ -39,17 +39,6 @@ jobs:
           pull: true
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
-      - name: Sign the container image
-        run: cosign sign --yes ${{ steps.docker-push.outputs.image }}
-      - name: Create SBOM
-        uses: aquasecurity/trivy-action@1a09192c0ea4a3f42a25d6ebc3abc423c2601f1a # ratchet:aquasecurity/trivy-action@master
-        with:
-          scan-type: 'image'
-          format: 'cyclonedx'
-          output: 'cyclone.sbom.json'
-          image-ref: ${{ steps.docker-push.outputs.image }}
-      - name: Attest image
-        run: cosign attest --yes --predicate cyclone.sbom.json --type cyclonedx ${{ steps.docker-push.outputs.image }}
   deploy:
     name: Deploy to prod
     needs: build
