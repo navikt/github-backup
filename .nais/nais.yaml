@@ -2,9 +2,9 @@ apiVersion: nais.io/v1
 kind: Naisjob
 metadata:
   labels:
-    team: aura
+    team: nais
   name:  github-backup
-  namespace: aura
+  namespace: nais
 spec:
   image: {{ image }}
   schedule: {{ schedule }}
