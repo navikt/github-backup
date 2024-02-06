@@ -2,9 +2,9 @@ apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
   name: github-backup
-  namespace: aura
+  namespace: nais
   labels:
-    team: aura
+    team: nais
 spec:
   groups:
     - name: github-backup
@@ -18,5 +18,5 @@ spec:
           summary: |-
             "The `gitHub-backup` job did not run to completion"
         labels:
-          namespace: aura
+          namespace: nais
           severity: warning
