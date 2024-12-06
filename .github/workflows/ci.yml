@@ -38,6 +38,9 @@ jobs:
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
   deploy:
+    permissions:
+      contents: read
+      id-token: write
     name: Deploy to prod
     needs: build
     runs-on: ubuntu-20.04
