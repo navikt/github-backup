@@ -10,13 +10,13 @@ spec:
     - name: github-backup
       rules:
       - alert: GitHub backup failed
-        expr: kube_job_failed{job_name=~"^github-backup.*", namespace="aura"} > 0
+        expr: kube_job_failed{job_name=~"^github-backup.*", namespace="nais"} > 0
         for: 1m
         annotations:
           consequence: GitHub repos were not backed up
           action: "`kubectl describe job github-backup`"
           summary: |-
-            "The `gitHub-backup` job did not run to completion"
+            "The `github-backup` job did not run to completion"
         labels:
           namespace: nais
           severity: warning

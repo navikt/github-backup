@@ -53,8 +53,5 @@ func FilenameFor(reponame string) string {
 
 func shouldBeSkipped(compressedFilename, filenameToTest string) bool {
 	// do not re-compress our own file
-	if strings.HasSuffix(compressedFilename, filenameToTest) {
-		return true
-	}
-	return false
+	return strings.HasSuffix(compressedFilename, filenameToTest)
 }

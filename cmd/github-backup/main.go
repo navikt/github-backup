@@ -1,7 +1,6 @@
 package main
 
 import (
-	"cloud.google.com/go/storage"
 	"context"
 	"fmt"
 	"github-backup/pkg/git"
@@ -11,6 +10,8 @@ import (
 	"path/filepath"
 	"sync"
 	"time"
+
+	"cloud.google.com/go/storage"
 )
 
 var basedir = filepath.Join(os.TempDir(), "ghbackup")
@@ -29,11 +30,11 @@ func main() {
 	fmt.Printf("found %d repos\n", len(repos))
 
 	goog, err := storage.NewClient(context.Background())
-	defer goog.Close()
 	if err != nil {
 		fmt.Printf("unable to create gcs client: %v\n", err)
 		os.Exit(1)
 	}
+	defer goog.Close()
 
 	workQueue := make(chan int, MaxConcurrent)
 	var wg sync.WaitGroup
@@ -72,15 +73,12 @@ func cloneZipAndStoreInBucket(repo string, bucketname string, githubToken string
 	}
 
 	file, err := os.Open(compressedFilePath)
-	defer file.Close()
 	if err != nil {
 		rm([]string{repodir, compressedFilePath})
 		return err
 	}
+	defer file.Close()
 
-	if err != nil {
-		panic(err)
-	}
 	objBasePath := time.Now().Format("2006/01/02")
 	err = objstorage.CopyToBucket(gcsClient, file, bucketname, objBasePath)
 	if err != nil {
