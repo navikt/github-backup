@@ -50,4 +50,4 @@ jobs:
         env:
           CLUSTER: prod-gcp
           RESOURCE: .nais/nais.yaml,.nais/alerts.yaml
-          VAR: .nais/prod.yaml
+          VARS: .nais/prod.yaml
