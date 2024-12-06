@@ -8,6 +8,7 @@ metadata:
 spec:
   image: {{ image }}
   schedule: {{ schedule }}
+  timeZone: Europe/Oslo
   ttlSecondsAfterFinished: 300
   resources:
     limits:
