@@ -1,52 +1,55 @@
-name: Build and deploy main
+name: Build, test and deploy
 on:
+  workflow_dispatch:
+  pull_request:
   push:
     branches:
       - main
-    paths-ignore:
-      - "*.md"
-  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
 jobs:
-  build:
-    name: Build all the things
+  checks:
+    strategy:
+      fail-fast: false
+      matrix:
+        mise-task:
+          - check:ratchet
+          - test
+    name: |
+      Run mise task: ${{ matrix.mise-task }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # ratchet:actions/checkout@v6
+      - uses: jdx/mise-action@146a28175021df8ca24f8ee1828cc2a60f980bd5 # ratchet:jdx/mise-action@v3
+      - run: mise run ${{ matrix.mise-task }}
+  build_and_deploy:
+    if: github.ref == 'refs/heads/main'
+    name: Build and deploy app
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write
       id-token: write
-    outputs:
-      img: ${{ steps.docker-push.outputs.image }}
-    env:
-      BUILDER_IMG: "cgr.dev/chainguard/go:latest"
-      RUNNER_IMG: "cgr.dev/chainguard/static"
-      BASEIMG_IDENTITY: "https://github.com/chainguard-images/images/.github/workflows/release.yaml@refs/heads/main"
-      BASEIMG_ISSUER: "https://token.actions.githubusercontent.com"
+    needs:
+      - checks
     steps:
-      - uses: actions/checkout@v4
-      - name: Install cosign
-        uses: sigstore/cosign-installer@v3
-        with:
-          cosign-release: "v2.2.1"
-      - name: Verify builder image
-        run: cosign verify --certificate-identity ${{ env.BASEIMG_IDENTITY }} --certificate-oidc-issuer ${{ env.BASEIMG_ISSUER }} ${{ env.BUILDER_IMG }}
-      - name: Verify runner image
-        run: cosign verify --certificate-identity ${{ env.BASEIMG_IDENTITY }} --certificate-oidc-issuer ${{ env.BASEIMG_ISSUER }} ${{ env.RUNNER_IMG }}
-      - uses: nais/docker-build-push@v0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # ratchet:actions/checkout@v6
+      - uses: jdx/mise-action@146a28175021df8ca24f8ee1828cc2a60f980bd5 # ratchet:jdx/mise-action@v3
+      - id: go-version
+        run: echo "version=$(mise current go)" >> $GITHUB_OUTPUT
+      - uses: nais/docker-build-push@1fae4798c79f4af4c3cdbd3fe65e51f8f3ba2368 # ratchet:nais/docker-build-push@main
         id: docker-push
         with:
           team: nais
+          build_args: GO_VERSION=${{ steps.go-version.outputs.version }}
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
-  deploy:
-    permissions:
-      contents: read
-      id-token: write
-    name: Deploy to prod
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: nais/deploy/actions/deploy@v2
+      - uses: nais/deploy/actions/deploy@33c53f5b87d0746093a7a7ab4b9fa853e0e53bdc # ratchet:nais/deploy/actions/deploy@v2
         env:
           CLUSTER: prod-gcp
           RESOURCE: .nais/nais.yaml,.nais/alerts.yaml
