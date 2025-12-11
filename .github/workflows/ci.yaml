@@ -20,6 +20,7 @@ jobs:
       matrix:
         mise-task:
           - check:ratchet
+          - ci:fmt
           - test
     name: |
       Run mise task: ${{ matrix.mise-task }}

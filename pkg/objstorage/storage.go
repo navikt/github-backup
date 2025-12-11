@@ -1,12 +1,13 @@
 package objstorage
 
 import (
-	"cloud.google.com/go/storage"
 	"context"
 	"fmt"
 	"io"
 	"os"
 	"path/filepath"
+
+	"cloud.google.com/go/storage"
 )
 
 func CopyToBucket(gcsClient *storage.Client, localSrcFile *os.File, bucketName string, objBasePath string) error {

@@ -3,16 +3,19 @@ package zippings
 import (
 	"archive/zip"
 	"fmt"
-	"github.com/stretchr/testify/assert"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
-var basePath = filepath.Join(os.TempDir(), "foo")
-var compressedFileName = "compressed_stuff.zip"
-var compressedFilePath = filepath.Join(basePath, compressedFileName)
+var (
+	basePath           = filepath.Join(os.TempDir(), "foo")
+	compressedFileName = "compressed_stuff.zip"
+	compressedFilePath = filepath.Join(basePath, compressedFileName)
+)
 
 func TestCompressedFileExcludesItself(t *testing.T) {
 	withTestdata(func() {
@@ -37,11 +40,11 @@ func withTestdata(f func()) {
 }
 
 func createTestdata() {
-	_ = os.MkdirAll(filepath.Join(basePath, ".git"), 0744)
+	_ = os.MkdirAll(filepath.Join(basePath, ".git"), 0o744)
 	filenames := []string{"file1", "file2", ".git/whatever"}
 	fileContents := []byte("hello")
 	for _, f := range filenames {
-		_ = os.WriteFile(filepath.Join(basePath, f), fileContents, 0644)
+		_ = os.WriteFile(filepath.Join(basePath, f), fileContents, 0o644)
 	}
 }
 
