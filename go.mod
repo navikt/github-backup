@@ -12,6 +12,9 @@ tool (
 require (
 	cloud.google.com/go/storage v1.58.0
 	github.com/go-git/go-git/v5 v5.16.4
+	github.com/joho/godotenv v1.5.1
+	github.com/sethvargo/go-envconfig v1.3.0
+	github.com/sirupsen/logrus v1.9.3
 	github.com/stretchr/testify v1.11.1
 	github.com/tomnomnom/linkheader v0.0.0-20250811210735-e5fe3b51442e
 )
@@ -71,7 +74,6 @@ require (
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/sergi/go-diff v1.4.0 // indirect
 	github.com/sethvargo/ratchet v0.11.4 // indirect
-	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/skeema/knownhosts v1.3.2 // indirect
 	github.com/spiffe/go-spiffe/v2 v2.6.0 // indirect
 	github.com/vbatts/tar-split v0.12.1 // indirect
