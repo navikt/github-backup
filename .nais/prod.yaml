@@ -1,3 +1,0 @@
-schedule: "0 2 * * 3,6"
-alert_channel: 'naas-alerts'
-bucket_name: "nais-prod-github-repos-backup"

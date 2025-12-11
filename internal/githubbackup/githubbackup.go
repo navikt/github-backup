@@ -1,35 +1,48 @@
-package main
+package githubbackup
 
 import (
 	"context"
 	"fmt"
-	"github-backup/pkg/git"
-	"github-backup/pkg/objstorage"
-	"github-backup/pkg/zippings"
 	"os"
 	"path/filepath"
 	"sync"
 	"time"
 
 	"cloud.google.com/go/storage"
+	"github.com/navikt/github-backup/internal/github"
+	"github.com/navikt/github-backup/internal/objstorage"
+	"github.com/navikt/github-backup/internal/zippings"
+	"github.com/sethvargo/go-envconfig"
+	"github.com/sirupsen/logrus"
 )
 
 var basedir = filepath.Join(os.TempDir(), "ghbackup")
-var orgs = []string{"navikt", "nais"}
 
 const MaxConcurrent = 3
 
-func main() {
-	bucketname := envOrDie("BUCKET_NAME")
-	githubToken := envOrDie("GITHUB_TOKEN")
+func init() {
+	logrus.SetFormatter(&logrus.JSONFormatter{})
+}
 
-	var repos []git.Repo
-	for _, org := range orgs {
-		repos = append(repos, reposOrDie(org, githubToken)...)
+func Run(ctx context.Context) error {
+	log := logrus.StandardLogger()
+
+	if err := loadEnvFile(log); err != nil {
+		return fmt.Errorf("error loading .env file: %w", err)
+	}
+
+	config, err := newConfig(ctx, envconfig.OsLookuper())
+	if err != nil {
+		return fmt.Errorf("error processing configuration: %w", err)
+	}
+
+	repos, err := github.ReposInOrgs(ctx, config.GitHubOrgs, config.GitHubToken)
+	if err != nil {
+		return fmt.Errorf("error fetching repos: %w", err)
 	}
 	fmt.Printf("found %d repos\n", len(repos))
 
-	goog, err := storage.NewClient(context.Background())
+	goog, err := storage.NewClient(ctx)
 	if err != nil {
 		fmt.Printf("unable to create gcs client: %v\n", err)
 		os.Exit(1)
@@ -44,15 +57,16 @@ func main() {
 		r := repo
 		workQueue <- 1
 		go func() {
-			err := cloneZipAndStoreInBucket(r.FullName, bucketname, githubToken, goog)
+			err := cloneZipAndStoreInBucket(r.GetFullName(), config.BucketName, config.GitHubToken, goog)
 			if err != nil {
-				fmt.Printf("failed to backup repo '%s': %v\n", r.FullName, err)
+				fmt.Printf("failed to backup repo %q: %v\n", r.GetFullName(), err)
 			}
 			<-workQueue
 			wg.Done()
 		}()
 	}
 	wg.Wait()
+	return nil
 }
 
 func cloneZipAndStoreInBucket(repo string, bucketname string, githubToken string, gcsClient *storage.Client) error {
@@ -60,7 +74,7 @@ func cloneZipAndStoreInBucket(repo string, bucketname string, githubToken string
 	compressedFilePath := filepath.Join(basedir, compressedFileName)
 	repodir := filepath.Join(basedir, repo)
 
-	err := git.CloneRepo(basedir, repo, "NAVGitHubBackup", githubToken)
+	err := github.CloneRepo(basedir, repo, "NAVGitHubBackup", githubToken)
 	if err != nil {
 		rm([]string{repodir})
 		return err
@@ -89,24 +103,6 @@ func cloneZipAndStoreInBucket(repo string, bucketname string, githubToken string
 	rm([]string{repodir, compressedFilePath})
 
 	return nil
-}
-
-func envOrDie(name string) string {
-	value, found := os.LookupEnv(name)
-	if !found {
-		fmt.Printf("unable to find env var '%s', I'm useless without it\n", name)
-		os.Exit(1)
-	}
-	return value
-}
-
-func reposOrDie(org string, githubToken string) []git.Repo {
-	repos, err := git.ReposFor(org, githubToken)
-	if err != nil {
-		fmt.Printf("couldn't get list of repos: %v\n", err)
-		os.Exit(1)
-	}
-	return repos
 }
 
 func rm(entries []string) {

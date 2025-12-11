@@ -7,21 +7,21 @@ metadata:
   namespace: nais
 spec:
   image: {{ image }}
-  schedule: {{ schedule }}
+  schedule: "0 2 * * 3,6"
   timeZone: Europe/Oslo
   ttlSecondsAfterFinished: 300
   resources:
     limits:
       memory: 2Gi
-      cpu: "5"
+      cpu: 5
     requests:
-      cpu: "500m"
+      cpu: 500m
   env:
     - name: BUCKET_NAME
-      value: {{ bucket_name }}
+      value: nais-prod-github-repos-backup
   envFrom:
     - secret: github-backup-config
   gcp:
     buckets:
-      - name: {{ bucket_name }}
+      - name: nais-prod-github-repos-backup
         publicAccessPrevention: true
