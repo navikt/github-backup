@@ -9,9 +9,9 @@ import (
 	"time"
 
 	"cloud.google.com/go/storage"
-	"github.com/navikt/github-backup/pkg/git"
-	"github.com/navikt/github-backup/pkg/objstorage"
-	"github.com/navikt/github-backup/pkg/zippings"
+	"github.com/navikt/github-backup/internal/git"
+	"github.com/navikt/github-backup/internal/objstorage"
+	"github.com/navikt/github-backup/internal/zippings"
 )
 
 var (
