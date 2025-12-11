@@ -8,11 +8,10 @@ import (
 	"sync"
 	"time"
 
-	"github-backup/pkg/git"
-	"github-backup/pkg/objstorage"
-	"github-backup/pkg/zippings"
-
 	"cloud.google.com/go/storage"
+	"github.com/navikt/github-backup/pkg/git"
+	"github.com/navikt/github-backup/pkg/objstorage"
+	"github.com/navikt/github-backup/pkg/zippings"
 )
 
 var (

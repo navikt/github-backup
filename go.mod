@@ -1,4 +1,4 @@
-module github-backup
+module github.com/navikt/github-backup
 
 go 1.25.5
 
