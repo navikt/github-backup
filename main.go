@@ -3,23 +3,28 @@ package main
 import (
 	"context"
 	"fmt"
-	"github-backup/pkg/git"
-	"github-backup/pkg/objstorage"
-	"github-backup/pkg/zippings"
 	"os"
 	"path/filepath"
 	"sync"
 	"time"
 
+	"github-backup/pkg/git"
+	"github-backup/pkg/objstorage"
+	"github-backup/pkg/zippings"
+
 	"cloud.google.com/go/storage"
 )
 
-var basedir = filepath.Join(os.TempDir(), "ghbackup")
-var orgs = []string{"navikt", "nais"}
+var (
+	basedir = filepath.Join(os.TempDir(), "ghbackup")
+	orgs    = []string{"navikt", "nais"}
+)
 
 const MaxConcurrent = 3
 
 func main() {
+	fmt.Println("Starting ghbackup")
+	return
 	bucketname := envOrDie("BUCKET_NAME")
 	githubToken := envOrDie("GITHUB_TOKEN")
 

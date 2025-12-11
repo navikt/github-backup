@@ -1,12 +1,11 @@
-FROM cgr.dev/chainguard/go:latest as build
-
-WORKDIR /go/github-backup
-COPY . .
-
+ARG GO_VERSION="1.25"
+FROM golang:${GO_VERSION} AS builder
+WORKDIR /src
+COPY go.* ./
 RUN go mod download
-RUN CGO_ENABLED=0 make
-RUN CGO_ENABLED=0 make test
+COPY . .
+RUN CGO_ENABLED=0 go build -o github-backup .
 
-FROM cgr.dev/chainguard/static:latest
-COPY --from=build /go/github-backup/bin /
+FROM scratch
+COPY --from=builder /src/github-backup /github-backup
 CMD ["/github-backup"]
