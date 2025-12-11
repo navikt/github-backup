@@ -17,6 +17,7 @@ jobs:
       matrix:
         mise-task:
           - check:deadcode
+          - check:govulncheck
           - check:ratchet
           - ci:fmt
           - test

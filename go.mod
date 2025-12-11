@@ -5,6 +5,7 @@ go 1.25.5
 tool (
 	github.com/sethvargo/ratchet
 	golang.org/x/tools/cmd/deadcode
+	golang.org/x/vuln/cmd/govulncheck
 )
 
 require (
@@ -92,6 +93,8 @@ require (
 	golang.org/x/text v0.32.0 // indirect
 	golang.org/x/time v0.14.0 // indirect
 	golang.org/x/tools v0.40.0 // indirect
+	golang.org/x/tools/go/packages/packagestest v0.1.1-deprecated // indirect
+	golang.org/x/vuln v1.1.4 // indirect
 	google.golang.org/api v0.257.0 // indirect
 	google.golang.org/genproto v0.0.0-20251202230838-ff82c1b0f217 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20251202230838-ff82c1b0f217 // indirect
