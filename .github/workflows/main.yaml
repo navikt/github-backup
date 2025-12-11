@@ -20,6 +20,7 @@ jobs:
           - check:govet
           - check:govulncheck
           - check:ratchet
+          - check:staticcheck
           - ci:fmt
           - test
     name: |
