@@ -23,8 +23,6 @@ var (
 const MaxConcurrent = 3
 
 func main() {
-	fmt.Println("Starting ghbackup")
-	return
 	bucketname := envOrDie("BUCKET_NAME")
 	githubToken := envOrDie("GITHUB_TOKEN")
 
