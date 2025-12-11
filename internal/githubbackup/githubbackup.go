@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"cloud.google.com/go/storage"
-	"github.com/navikt/github-backup/internal/git"
+	"github.com/navikt/github-backup/internal/github"
 	"github.com/navikt/github-backup/internal/objstorage"
 	"github.com/navikt/github-backup/internal/zippings"
 	"github.com/sethvargo/go-envconfig"
@@ -36,13 +36,13 @@ func Run(ctx context.Context) error {
 		return fmt.Errorf("error processing configuration: %w", err)
 	}
 
-	var repos []git.Repo
-	for _, org := range config.GitHubOrgs {
-		repos = append(repos, reposOrDie(org, config.GitHubToken)...)
+	repos, err := github.ReposInOrgs(ctx, config.GitHubOrgs, config.GitHubToken)
+	if err != nil {
+		return fmt.Errorf("error fetching repos: %w", err)
 	}
 	fmt.Printf("found %d repos\n", len(repos))
 
-	goog, err := storage.NewClient(context.Background())
+	goog, err := storage.NewClient(ctx)
 	if err != nil {
 		fmt.Printf("unable to create gcs client: %v\n", err)
 		os.Exit(1)
@@ -57,9 +57,9 @@ func Run(ctx context.Context) error {
 		r := repo
 		workQueue <- 1
 		go func() {
-			err := cloneZipAndStoreInBucket(r.FullName, config.BucketName, config.GitHubToken, goog)
+			err := cloneZipAndStoreInBucket(r.GetFullName(), config.BucketName, config.GitHubToken, goog)
 			if err != nil {
-				fmt.Printf("failed to backup repo '%s': %v\n", r.FullName, err)
+				fmt.Printf("failed to backup repo %q: %v\n", r.GetFullName(), err)
 			}
 			<-workQueue
 			wg.Done()
@@ -74,7 +74,7 @@ func cloneZipAndStoreInBucket(repo string, bucketname string, githubToken string
 	compressedFilePath := filepath.Join(basedir, compressedFileName)
 	repodir := filepath.Join(basedir, repo)
 
-	err := git.CloneRepo(basedir, repo, "NAVGitHubBackup", githubToken)
+	err := github.CloneRepo(basedir, repo, "NAVGitHubBackup", githubToken)
 	if err != nil {
 		rm([]string{repodir})
 		return err
@@ -103,15 +103,6 @@ func cloneZipAndStoreInBucket(repo string, bucketname string, githubToken string
 	rm([]string{repodir, compressedFilePath})
 
 	return nil
-}
-
-func reposOrDie(org string, githubToken string) []git.Repo {
-	repos, err := git.ReposFor(org, githubToken)
-	if err != nil {
-		fmt.Printf("couldn't get list of repos: %v\n", err)
-		os.Exit(1)
-	}
-	return repos
 }
 
 func rm(entries []string) {
