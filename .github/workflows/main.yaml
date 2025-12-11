@@ -5,14 +5,11 @@ on:
   push:
     branches:
       - main
-
 concurrency:
   group: ${{ github.ref }}
   cancel-in-progress: true
-
 permissions:
   contents: read
-
 jobs:
   checks:
     strategy:
@@ -44,7 +41,7 @@ jobs:
       - id: go-version
         run: echo "version=$(mise current go)" >> $GITHUB_OUTPUT
       - uses: nais/docker-build-push@1fae4798c79f4af4c3cdbd3fe65e51f8f3ba2368 # ratchet:nais/docker-build-push@main
-        id: docker-push
+        id: docker-build-push
         with:
           team: nais
           build_args: GO_VERSION=${{ steps.go-version.outputs.version }}
@@ -54,5 +51,5 @@ jobs:
         env:
           CLUSTER: prod-gcp
           RESOURCE: .nais/nais.yaml,.nais/alerts.yaml
-          VARS: .nais/prod.yaml
-          VAR: image=${{ needs.build.outputs.img }}
+          IMAGE: ${{ steps.docker-build-push.outputs.image }}
+          TELEMETRY: ${{ steps.docker-build-push.outputs.telemetry }}
