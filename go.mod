@@ -1,6 +1,6 @@
 module github-backup
 
-go 1.24.5
+go 1.25.5
 
 require (
 	cloud.google.com/go/storage v1.56.0
