@@ -1,4 +1,4 @@
-FROM cgr.dev/chainguard/go:latest as build
+FROM cgr.dev/chainguard/go:latest AS build
 
 WORKDIR /go/github-backup
 COPY . .
